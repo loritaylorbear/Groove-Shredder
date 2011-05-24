@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://grooveshredder/skin/overlay.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://grooveshredder/locale/overlay.dtd">
+<overlay id="grooveshredder-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script src="jquery.js"/> 
+  <script src="toolbar.js"/>
+  <script src="overlay.js"/>
+  
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="grooveshredder-strings" src="chrome://grooveshredder/locale/overlay.properties"/>
+  </stringbundleset>
+
+  <toolbarpalette id="BrowserToolbarPalette">
+  <toolbarbutton id="grooveshredder-toolbar-button" class="toolbarbutton-1 chromeclass-toolbar-additional grooveshredder-tbutton-on"
+    label="&grooveshredderToolbarButton.label;" tooltiptext="&grooveshredderToolbarButton.tooltip;"
+    oncommand="grooveshredder.onToolbarButtonCommand()"/>
+  </toolbarpalette>
+
+
+
+</overlay>

@@ -1,0 +1,8 @@
+<!ENTITY prefwindow.title "Groove Shredder preferences">
+<!ENTITY pane1.title "Groove Shredder preferences">
+<!ENTITY checkautoget.label "Automatic Downloads (Click Free)">
+<!ENTITY checkautoget.accesskey "A">
+<!ENTITY checknodialog.label "No File Select Dialog (Coming Soon)">
+<!ENTITY checknodialog.accesskey "D">
+<!ENTITY filepref.label "Default Filename">
+<!ENTITY filepref.accesskey "F">

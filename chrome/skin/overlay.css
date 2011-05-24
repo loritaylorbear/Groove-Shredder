@@ -1,0 +1,23 @@
+.grooveshredder-tbutton-on
+{
+  list-style-image: url("chrome://grooveshredder/skin/shark.png");
+}
+.grooveshredder-tbutton-off {
+  list-style-image: url("chrome://grooveshredder/skin/shark-off.png");
+}
+#grooveshredder-toolbar-button:hover
+{
+  list-style-image: url("chrome://grooveshredder/skin/shark-hover.png");
+}
+[iconsize="small"] .grooveshredder-tbutton-on
+{
+  list-style-image: url("chrome://grooveshredder/skin/shark-s.png") !important;
+}
+[iconsize="small"] .grooveshredder-tbutton-off
+{
+  list-style-image: url("chrome://grooveshredder/skin/shark-off-s.png") !important;
+}
+[iconsize="small"] #grooveshredder-toolbar-button:hover
+{
+  list-style-image: url("chrome://grooveshredder/skin/shark-hover-s.png") !important;
+}
