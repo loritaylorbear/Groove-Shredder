@@ -50,7 +50,8 @@ var grooveRequestObserver =
 		var channel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
 		var re = /http:\/\/grooveshark.com\/more.php\?getStreamKeyFromSongIDEx$/;
 		if(channel.URI.spec.match(re)){
-			createButton(getPostData(subject), 0);
+			this.original = this.original? false : true;
+			if(this.original) createButton(getPostData(subject), 0);
 		}
 	}
   },
@@ -60,6 +61,7 @@ var grooveRequestObserver =
   },
   register: function()
   {
+	this.original = true;
     this.observerService.addObserver(this, "http-on-modify-request", false);
   },
   unregister: function()
@@ -91,7 +93,7 @@ var grooveDownloader = {
 		var file_pref = gpreferences.getCharPref(".filename");
 		this.song_file = file_pref.replace("%artist%", song_artist)
 									.replace("%title%", song_name)
-										.replace("%album%", song_album) + ".mp3";
+										.replace("%album%", song_album).replace("\\", "") + ".mp3";
 	},
 	runFilePicker: function()
 	{
@@ -114,9 +116,10 @@ var grooveDownloader = {
 			this.thefile = FileUtils.getFile("ProfD", [this.song_file]);
 			this.obj_URI = this.ios.newURI(this.url, null, null);
 			this.file_URI = this.ios.newFileURI(this.thefile);
-			if(!this.thefile.exists()){
-				return true;
-			} else return false;
+			if(this.thefile.exists()){
+				if(!confirm(this.song_file+'\r\nFile exists in target location. Overwrite?')) return false;
+			}
+			return true;
 		}
 	},
 	saveSong: function()
@@ -155,7 +158,7 @@ function createButton(iden, times){
 			// Add a button to grooveshark
 			element = content.document.getElementById("playerDetails_nowPlaying");
 			$(element).children('b').remove();
-			$(element).append('<b id="playerDetails_grooveShredder" class="'+stream_key+'" style="\
+			$(element).append('<b id="playerDetails_grooveShredder" style="\
 								cursor:pointer; \
 								color: #fff; \
 								font-weight: normal; \
