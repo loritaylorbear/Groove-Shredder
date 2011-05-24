@@ -33,7 +33,8 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 		this.initialized = true;
 		this.theApp.gpreferences.setBoolPref("enabled", true);
 		this.theApp.grooveRequestObserver.register();
-		btn.setAttribute("class","grooveshredder-tbutton-on toolbarbutton-1 chromeclass-toolbar-additional");  
+		if(btn !== null)
+			btn.setAttribute("class","grooveshredder-tbutton-on toolbarbutton-1 chromeclass-toolbar-additional");  
   },
   setDisabled: function() {
   		var btn = document.getElementById("grooveshredder-toolbar-button");

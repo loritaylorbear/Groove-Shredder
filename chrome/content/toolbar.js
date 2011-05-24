@@ -1,4 +1,4 @@
-function toolbarMagic(){
+function comArgeeOrgGrooveShredderToolbarMagic(){
    // Read preferences
 	var nsIPrefServiceObj = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 	var nsIPrefBranchObj = nsIPrefServiceObj.getBranch("extensions.grooveshredder");
@@ -25,7 +25,7 @@ function toolbarMagic(){
 	}
 	
 	nsIPrefBranchObj.setBoolPref("firstrun",true);
-	window.removeEventListener("load", toolbarMagic, false);
+	window.removeEventListener("load", comArgeeOrgGrooveShredderToolbarMagic, false);
 }
 
-window.addEventListener("load", toolbarMagic, false);
+window.addEventListener("load", comArgeeOrgGrooveShredderToolbarMagic, false);
