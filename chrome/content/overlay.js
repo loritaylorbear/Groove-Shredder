@@ -95,22 +95,34 @@ var grooveDownloader = {
 	},
 	runFilePicker: function()
 	{
-		var nsIFilePicker = Components.interfaces.nsIFilePicker;
-		var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-		fp.init(window, "Save GrooveShredded File As...", nsIFilePicker.modeSave);
-		fp.appendFilter("MP3 Files","*.mp3");
-		fp.defaultString = this.song_file;
-		var res = fp.show();
-		if (res == nsIFilePicker.returnOK || res == nsIFilePicker.returnReplace){
-			this.thefile = fp.file;
+		if(!gpreferences.getBoolPref(".nodialog")){
+			var nsIFilePicker = Components.interfaces.nsIFilePicker;
+			var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+			fp.init(window, "Save GrooveShredded File As...", nsIFilePicker.modeSave);
+			fp.appendFilter("MP3 Files","*.mp3");
+			fp.defaultString = this.song_file;
+			var res = fp.show();
+			if (res == nsIFilePicker.returnOK || res == nsIFilePicker.returnReplace){
+				this.thefile = fp.file;
+				this.obj_URI = this.ios.newURI(this.url, null, null);
+				this.file_URI = this.ios.newFileURI(this.thefile);
+				return true;
+			}
+			else return false;
+		} else {
+			Components.utils.import("resource://gre/modules/FileUtils.jsm");
+			this.thefile = FileUtils.getFile("ProfD", [this.song_file]);
 			this.obj_URI = this.ios.newURI(this.url, null, null);
 			this.file_URI = this.ios.newFileURI(this.thefile);
-			return true;
+			if(!this.thefile.exists()){
+				return true;
+			} else return false;
 		}
-		else return false;
 	},
 	saveSong: function()
 	{
+		var dbutton = content.document.getElementById("playerDetails_grooveShredder");
+		$(dbutton).animate({opacity:0.25},800).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
 		this.xfer.init(this.obj_URI, this.file_URI, "", null, null, null, this.persist);
 		this.persist.progressListener = this.xfer; 
 		this.persist.saveURI(this.obj_URI, null, null, this.data, "", this.thefile);	
@@ -143,7 +155,7 @@ function createButton(iden, times){
 			// Add a button to grooveshark
 			element = content.document.getElementById("playerDetails_nowPlaying");
 			$(element).children('b').remove();
-			$(element).append('<b class="'+stream_key+'" style="\
+			$(element).append('<b id="playerDetails_grooveShredder" class="'+stream_key+'" style="\
 								cursor:pointer; \
 								color: #fff; \
 								font-weight: normal; \
