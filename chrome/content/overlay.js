@@ -1,3 +1,4 @@
+var $grooveShredderQuery = jQuery.noConflict();
 var orgArgeeCodeGrooveShredder = {};
 
 orgArgeeCodeGrooveShredder.pref_service = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
@@ -131,7 +132,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	saveSong: function()
 	{
 		var dbutton = content.document.getElementById("playerDetails_grooveShredder");
-		$(dbutton).animate({opacity:0.25},800).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
+		$grooveShredderQuery(dbutton).animate({opacity:0.25},800).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
 		this.xfer.init(this.obj_URI, this.file_URI, "", null, null, null, this.persist);
 		this.persist.progressListener = this.xfer; 
 		this.persist.saveURI(this.obj_URI, null, null, this.data, "", this.thefile);	
@@ -151,7 +152,7 @@ orgArgeeCodeGrooveShredder.utility =
 {
 	createButton: function(iden, times){
 		var theApp = orgArgeeCodeGrooveShredder;
-		$.ajax({
+		$grooveShredderQuery.ajax({
 			url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
 			type: 'POST',
 			data: iden,
@@ -167,8 +168,8 @@ orgArgeeCodeGrooveShredder.utility =
 				var stream_key = result.match(key_patt)[1];
 				// Add a button to grooveshark
 				element = content.document.getElementById("playerDetails_nowPlaying");
-				$(element).children('b').remove();
-				$(element).append('<b id="playerDetails_grooveShredder" style="\
+				$grooveShredderQuery(element).children('b').remove();
+				$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder" style="\
 									cursor:pointer; \
 									color: #fff; \
 									font-weight: normal; \
@@ -177,7 +178,7 @@ orgArgeeCodeGrooveShredder.utility =
 									-moz-border-radius: 2px; \
 									background: #888 url(chrome://grooveshredder/skin/shark-s.png) no-repeat 4px center;"> \
 									Download Song</b>');
-				$(element).children('b').click(function(){
+				$grooveShredderQuery(element).children('b').click(function(){
 					theApp.grooveDownloader.execute(stream_url, stream_key);
 				});
 				
