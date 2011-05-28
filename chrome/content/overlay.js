@@ -91,7 +91,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	getFileName: function()
 	{
 		var songDetails = content.document.getElementById("playerDetails_nowPlaying").innerHTML;
-		var name_regex = /class="song.*" title="(.*)"/;
+		var name_regex = /class=".*song.*" title="(.*)"/;
 		var from_regex = /class="artist.*" title="(.*)"/;
 		var album_regex = /class="album.*" title="(.*)"/;
 		var song_name = songDetails.match(name_regex)[1].replace("&amp;", "&");
