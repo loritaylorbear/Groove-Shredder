@@ -90,13 +90,10 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	},
 	getFileName: function()
 	{
-		var songDetails = content.document.getElementById("playerDetails_nowPlaying").innerHTML;
-		var name_regex = /class=".*song.*" title="(.*)"/;
-		var from_regex = /class="artist.*" title="(.*)"/;
-		var album_regex = /class="album.*" title="(.*)"/;
-		var song_name = songDetails.match(name_regex)[1].replace("&amp;", "&");
-		var song_artist = songDetails.match(from_regex)[1].replace("&amp;", "&");
-		var song_album = songDetails.match(album_regex)[1].replace("&amp;", "&");
+		var songBox = content.document.getElementById("playerDetails_nowPlaying");
+		var song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
+		var song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
+		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
 		var file_pref = this.theApp.gpreferences.getCharPref(".filename");
 		this.song_file = file_pref.replace("%artist%", song_artist)
 									.replace("%title%", song_name)
