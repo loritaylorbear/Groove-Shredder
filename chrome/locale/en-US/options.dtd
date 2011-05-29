@@ -4,5 +4,8 @@
 <!ENTITY checkautoget.accesskey "A">
 <!ENTITY checknodialog.label "Skip File Select Dialog">
 <!ENTITY checknodialog.accesskey "D">
+<!ENTITY downloc.label "Download Location">
+<!ENTITY downloc.accesskey "L">
+<!ENTITY downloc.button "Browse...">
 <!ENTITY filepref.label "Default Filename">
 <!ENTITY filepref.accesskey "F">

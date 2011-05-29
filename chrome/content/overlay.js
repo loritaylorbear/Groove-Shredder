@@ -101,11 +101,13 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	},
 	runFilePicker: function()
 	{
+		var directory = this.theApp.utility.getDirectory();
 		if(!this.theApp.gpreferences.getBoolPref(".nodialog")){
 			var nsIFilePicker = Components.interfaces.nsIFilePicker;
 			var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 			fp.init(window, "Save GrooveShredded File As...", nsIFilePicker.modeSave);
 			fp.appendFilter("MP3 Files","*.mp3");
+			fp.displayDirectory = directory;
 			fp.defaultString = this.song_file;
 			var res = fp.show();
 			if (res == nsIFilePicker.returnOK || res == nsIFilePicker.returnReplace){
@@ -116,8 +118,8 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 			}
 			else return false;
 		} else {
-			Components.utils.import("resource://gre/modules/FileUtils.jsm");
-			this.thefile = FileUtils.getFile("Desk", [this.song_file]);
+			directory.appendRelativePath(this.song_file);
+			this.thefile = directory;
 			this.obj_URI = this.ios.newURI(this.url, null, null);
 			this.file_URI = this.ios.newFileURI(this.thefile);
 			if(this.thefile.exists()){
@@ -213,6 +215,17 @@ orgArgeeCodeGrooveShredder.utility =
 		postData.addContentLength = true;
 		postData.setData(stringStream);
 		return postData;
+	},
+	getDirectory: function(){
+		Components.utils.import("resource://gre/modules/FileUtils.jsm");
+		if(!this.theApp.gpreferences.prefHasUserValue('.downloc')){
+			return FileUtils.getDir("Desk", []);
+		} else {
+			var directory = Components.classes["@mozilla.org/file/local;1"].
+					createInstance(Components.interfaces.nsILocalFile);
+			directory.initWithPath(this.theApp.gpreferences.getCharPref('.downloc'));
+			return directory;
+		}
 	},
 	theApp : orgArgeeCodeGrooveShredder
 }
