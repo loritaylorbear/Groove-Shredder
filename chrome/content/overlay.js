@@ -55,6 +55,9 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 			var channel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
 			var re = /http:\/\/grooveshark.com\/more.php\?getStreamKeyFromSongIDEx$/;
 			if(channel.URI.spec.match(re)){
+				var notificationCallbacks = channel.notificationCallbacks;
+				var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
+				this.theApp.browser = gBrowser.getBrowserForDocument(domWin.top.document);
 				this.original = this.original? false : true;
 				if(this.original) this.theApp.utility.createButton(this.theApp.utility.getPostData(subject), 0);
 			}
@@ -90,7 +93,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	},
 	getFileName: function()
 	{
-		var songBox = content.document.getElementById("playerDetails_nowPlaying");
+		var songBox = this.theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
 		var song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
 		var song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
 		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
@@ -130,7 +133,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	},
 	saveSong: function()
 	{
-		var dbutton = content.document.getElementById("playerDetails_grooveShredder");
+		var dbutton = this.theApp.browser.contentDocument.getElementById("playerDetails_grooveShredder");
 		$grooveShredderQuery(dbutton).animate({opacity:0.25},800).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
 		this.xfer.init(this.obj_URI, this.file_URI, "", null, null, null, this.persist);
 		this.persist.progressListener = this.xfer; 
@@ -166,7 +169,7 @@ orgArgeeCodeGrooveShredder.utility =
 				var stream_url = result.match(url_patt)[1];
 				var stream_key = result.match(key_patt)[1];
 				// Add a button to grooveshark
-				element = content.document.getElementById("playerDetails_nowPlaying");
+				element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
 				$grooveShredderQuery(element).children('b').remove();
 				$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder" style="\
 									cursor:pointer; \
