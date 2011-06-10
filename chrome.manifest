@@ -4,4 +4,4 @@ locale    grooveshredder   en-US         chrome/locale/en-US/
 
 
 overlay   chrome://browser/content/browser.xul   chrome://grooveshredder/content/ff-overlay.xul
-style chrome://global/content/customizeToolbar.xul chrome://grooveshredder/skin/overlay.css
+style chrome://global/content/customizeToolbar.xul chrome://grooveshredder/skin/overlay.css chrome://grooveshredder/content/options.css

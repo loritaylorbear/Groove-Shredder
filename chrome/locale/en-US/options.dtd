@@ -7,5 +7,7 @@
 <!ENTITY downloc.label "Download Location">
 <!ENTITY downloc.accesskey "L">
 <!ENTITY downloc.button "Browse...">
+<!ENTITY downdir.label "Create a Sub-Directory Using:">
+<!ENTITY downdir.accesskey "C">
 <!ENTITY filepref.label "Default Filename">
 <!ENTITY filepref.accesskey "F">

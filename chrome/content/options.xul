@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://grooveshredder/skin/options.css" type="text/css"?>
 <!DOCTYPE prefwindow SYSTEM "chrome://grooveshredder/locale/options.dtd">
 <prefwindow id="grooveshredder-preferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
 <script src="jquery.js"/>
@@ -10,6 +11,7 @@
       <preference id="nodialog" name="extensions.grooveshredder.nodialog" type="bool"/>
       <preference id="filename" name="extensions.grooveshredder.filename" type="string"/>
       <preference id="downloc" name="extensions.grooveshredder.downloc" type="string"/>
+      <preference id="downdir" name="extensions.grooveshredder.downdir" type="string"/>
     </preferences>
     <checkbox id="checkautoget" preference="autoget" label="&checkautoget.label;" accesskey="&checkautoget.accesskey;"/>
 	<checkbox id="checknodialog" preference="nodialog" label="&checknodialog.label;" accesskey="&checknodialog.accesskey;"/>
@@ -17,6 +19,17 @@
 	<box orient="horizontal">
 		<textbox id="textdownloc" preference="downloc" size="40" disabled="true" />
 		<button id="btndownloc" label="&downloc.button;" flex="1"/>
+	</box>
+	<box orient="horizontal">
+		<label id="textdowndir" accesskey="&downdir.accesskey;" control="textdowndir">&downdir.label;</label>
+		<menulist id="dropdowndir">
+		  <menupopup>
+			<menuitem value="" label="(No Sub-Dir)" />
+			<menuitem value="%album%" label="Album" />
+			<menuitem value="%artist%" label="Artist" />
+			<menuitem value="%title%" label="Title" />
+		  </menupopup>
+		</menulist>
 	</box>
     <label accesskey="&filepref.accesskey;" control="textfilename">&filepref.label;</label><textbox id="textfilename" preference="filename"/>
     <label>Available Tags: %title% %artist% %album%</label>

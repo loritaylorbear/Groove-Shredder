@@ -15,7 +15,4 @@
     label="&grooveshredderToolbarButton.label;" tooltiptext="&grooveshredderToolbarButton.tooltip;"
     oncommand="orgArgeeCodeGrooveShredder.grooveshredder.onToolbarButtonCommand()"/>
   </toolbarpalette>
-
-
-
 </overlay>

@@ -1,9 +1,12 @@
+/* Declaring namespaces to prevent conflicts */
 var $grooveShredderQuery = jQuery.noConflict();
 var orgArgeeCodeGrooveShredder = {};
 
+/* Global Variables contained in the namespace */
 orgArgeeCodeGrooveShredder.pref_service = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 orgArgeeCodeGrooveShredder.gpreferences = orgArgeeCodeGrooveShredder.pref_service.getBranch("extensions.grooveshredder");
 
+/* Handler for the main listener and toolbar logic */
 orgArgeeCodeGrooveShredder.grooveshredder = {
   onLoad: function() {
     // initialization code
@@ -47,6 +50,7 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
   theApp : orgArgeeCodeGrooveShredder
 };
 
+/* The HTTP Observer / Listener that monitors requests */
 orgArgeeCodeGrooveShredder.grooveRequestObserver = 
 {
 	observe: function(subject, topic, data)
@@ -79,6 +83,7 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 	theApp : orgArgeeCodeGrooveShredder
 };
 
+/* This 'class' handles most of the download logic */
 orgArgeeCodeGrooveShredder.grooveDownloader = 
 {
 	init: function(url, dataString) {
@@ -94,17 +99,22 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	getFileName: function()
 	{
 		var songBox = this.theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
-		var song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
-		var song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
-		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
+		this.theApp.song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
+		this.theApp.song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
+		this.theApp.song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
 		var file_pref = this.theApp.gpreferences.getCharPref(".filename");
-		this.song_file = file_pref.replace("%artist%", song_artist)
-									.replace("%title%", song_name)
-										.replace("%album%", song_album).replace("\\", "") + ".mp3";
+		this.song_file = file_pref.replace("%artist%", this.theApp.song_artist)
+									.replace("%title%", this.theApp.song_name)
+										.replace("%album%", this.theApp.song_album).replace("\\", "") + ".mp3";
 	},
 	runFilePicker: function()
 	{
+		var automade = false;
 		var directory = this.theApp.utility.getDirectory();
+		if(!directory.exists()){
+			directory.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0777);
+			automade = true;
+		}
 		if(!this.theApp.gpreferences.getBoolPref(".nodialog")){
 			var nsIFilePicker = Components.interfaces.nsIFilePicker;
 			var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -119,7 +129,10 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 				this.file_URI = this.ios.newFileURI(this.thefile);
 				return true;
 			}
-			else return false;
+			else {
+				if(automade) directory.remove(false);
+				return false;
+			}
 		} else {
 			directory.appendRelativePath(this.song_file);
 			this.thefile = directory;
@@ -150,6 +163,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	theApp : orgArgeeCodeGrooveShredder
 };
 
+/* Utility functions used throughout the extension */
 orgArgeeCodeGrooveShredder.utility = 
 {
 	createButton: function(iden, times){
@@ -220,15 +234,26 @@ orgArgeeCodeGrooveShredder.utility =
 		return postData;
 	},
 	getDirectory: function(){
+		var directory;
 		Components.utils.import("resource://gre/modules/FileUtils.jsm");
 		if(!this.theApp.gpreferences.prefHasUserValue('.downloc')){
-			return FileUtils.getDir("Desk", []);
+			directory = FileUtils.getDir("Desk", []);
 		} else {
-			var directory = Components.classes["@mozilla.org/file/local;1"].
+			var dir = Components.classes["@mozilla.org/file/local;1"].
 					createInstance(Components.interfaces.nsILocalFile);
-			directory.initWithPath(this.theApp.gpreferences.getCharPref('.downloc'));
-			return directory;
+			dir.initWithPath(this.theApp.gpreferences.getCharPref('.downloc'));
+			directory = dir;
 		}
+		
+		if(this.theApp.gpreferences.prefHasUserValue('.downdir')){
+			var dir_pref = this.theApp.gpreferences.getCharPref(".downdir");
+			var subdir = dir_pref.replace("%artist%", this.theApp.song_artist)
+									.replace("%title%", this.theApp.song_name)
+										.replace("%album%", this.theApp.song_album).replace("\\", "");
+			directory.appendRelativePath(subdir);
+		}
+		
+		return directory;
 	},
 	theApp : orgArgeeCodeGrooveShredder
 }

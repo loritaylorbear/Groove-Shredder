@@ -28,4 +28,8 @@ $grooveShredderQuery(function(){
 			$grooveShredderQuery('#downloc').val(fp.file.path);
 		}
 	});
+	
+	$grooveShredderQuery('#dropdowndir').bind('command', function(event){
+		$grooveShredderQuery('#downdir').val(event.target.value);
+	});
 });
