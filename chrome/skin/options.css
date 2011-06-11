@@ -30,7 +30,7 @@
   padding: 0;
 }
 
-#abovecontainer label.orange, #abovecontainer label.green
+#abovecontainer label.orange, #abovecontainer label.green, #abovecontainer label.grey
 {
   -moz-border-radius: 5px;
   margin: 5px 0px;
@@ -47,6 +47,11 @@
 #abovecontainer label.green
 {
   background: #aae9aa;
+}
+
+#abovecontainer label.grey
+{
+  background: #ddd;
 }
 
 #abovecontainer a {

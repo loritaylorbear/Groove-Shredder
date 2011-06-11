@@ -18,6 +18,7 @@
 		<h1>Groove Shredder <span id="version">&version.number;</span></h1>
 		<label>&thanks.text;</label>
 		<label class="green">&updated.text;</label>
+		<label class="grey">&unreviewed.text;</label>
 		<label class="orange">&outdated.text;</label>
 	</div>
 	<tabbox id="tabcontainer">
