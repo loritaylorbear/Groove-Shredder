@@ -1,14 +1,108 @@
-#grooveshredder-preferences #pane1
+#abovecontainer
 {
-  background: transparent url("chrome://grooveshredder/skin/gs_opt_logo.png") no-repeat;
+  height: 104px;
+  width: 100%;
+  display: block;
+  padding: 10px  10px 10px 130px;
+  background: #ecf5fe url('chrome://grooveshredder/skin/gs_opt_logo.png') no-repeat 5px 5px;
+  -moz-border-radius: 5px;
+}
+
+#abovecontainer h1
+{
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #c63717;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+#abovecontainer h1 span
+{
+  color: #5e728c;
+  margin-left: 8px;
+}
+
+#abovecontainer label
+{
+  position: absolute;
+  margin: 0;
+  padding: 0;
+}
+
+#abovecontainer label.orange, #abovecontainer label.green
+{
+  -moz-border-radius: 5px;
+  margin: 5px 0px;
+  padding: 2px 5px;
+  color: #666;
+  display: none;
+}
+
+#abovecontainer label.orange 
+{
+  background: #FFE685;
+}
+
+#abovecontainer label.green
+{
+  background: #aae9aa;
+}
+
+#abovecontainer a {
+
+}
+
+#tabcontainer
+{
+  margin-top: 10px;
+}
+
+#tabcontainer tab
+{
+-moz-border-radius: 15px;
+border-radius: 15px;
+}
+
+#tabcontainer tabpanel
+{
+  width: 350px;
+  min-height: 200px;
+  max-height: 500px;
+  display: inline-block;
+  clear: both;
+}
+
+#tabcontainer tabpanel groupbox
+{
+  width: 100%;
+  padding: 5px;
+  margin: 0;
+}
+
+#tabcontainer iframe {
+  border: none;
+  width: 100%;
+  margin-top: -10px;
+  padding: 0;
+  height: 210px;
 }
 
 #checkautonext
 {
-	margin-left: 30px;
+  margin-left: 30px;
 }
 
 #textdowndir
 {
-	padding: 5px 5px 5px 0;
+  padding: 5px 5px 5px 0;
+}
+
+.spacer {
+  display: block;
+  height: 10px;
+}
+
+.clear {
+  clear: both;
 }

@@ -1,5 +1,9 @@
 <!ENTITY prefwindow.title "Groove Shredder preferences">
 <!ENTITY pane1.title "Groove Shredder preferences">
+<!ENTITY gensettab.label "General Settings">
+<!ENTITY filesettab.label "Download Settings">
+<!ENTITY expsettab.label "Experimental">
+<!ENTITY helptab.label "Help">
 <!ENTITY checkautoget.label "Automatic Downloads">
 <!ENTITY checkautoget.accesskey "A">
 <!ENTITY checkautonext.label "Skip To Next Song on Download">
@@ -13,3 +17,7 @@
 <!ENTITY downdir.accesskey "C">
 <!ENTITY filepref.label "Default Filename">
 <!ENTITY filepref.accesskey "F">
+<!ENTITY thanks.text "Thank you for using Groove Shredder.">
+<!ENTITY updated.text "You are using the latest version.">
+<!ENTITY outdated.text "You are using an outdated version.">
+<!ENTITY version.number "1.10">

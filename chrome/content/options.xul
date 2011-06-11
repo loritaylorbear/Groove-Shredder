@@ -14,26 +14,58 @@
       <preference id="downloc" name="extensions.grooveshredder.downloc" type="string"/>
       <preference id="downdir" name="extensions.grooveshredder.downdir" type="string"/>
     </preferences>
-    <checkbox id="checkautoget" preference="autoget" label="&checkautoget.label;" accesskey="&checkautoget.accesskey;"/>
-	    <checkbox id="checkautonext" preference="autonext" label="&checkautonext.label;" accesskey="&checkautonext.accesskey;"/>
-	<checkbox id="checknodialog" preference="nodialog" label="&checknodialog.label;" accesskey="&checknodialog.accesskey;"/>
-    <label accesskey="&downloc.accesskey;" control="textdownloc">&downloc.label;</label>
-	<box orient="horizontal">
-		<textbox id="textdownloc" preference="downloc" size="40" disabled="true" />
-		<button id="btndownloc" label="&downloc.button;" flex="1"/>
-	</box>
-	<box orient="horizontal">
-		<label id="textdowndir" accesskey="&downdir.accesskey;" control="textdowndir">&downdir.label;</label>
-		<menulist id="dropdowndir" preference="downdir">
-		  <menupopup>
-			<menuitem value="" label="(No Sub-Dir)" />
-			<menuitem value="%album%" label="Album" />
-			<menuitem value="%artist%" label="Artist" />
-			<menuitem value="%title%" label="Title" />
-		  </menupopup>
-		</menulist>
-	</box>
-    <label accesskey="&filepref.accesskey;" control="textfilename">&filepref.label;</label><textbox id="textfilename" preference="filename"/>
-    <label>Available Tags: %title% %artist% %album%</label>
+	<div id="abovecontainer">
+		<h1>Groove Shredder <span id="version">&version.number;</span></h1>
+		<label>&thanks.text;</label>
+		<label class="green">&updated.text;</label>
+		<label class="orange">&outdated.text;</label>
+	</div>
+	<tabbox id="tabcontainer">
+		<tabs>
+			<tab label="&gensettab.label;"/>
+			<tab label="&filesettab.label;"/>
+			<tab label="&expsettab.label;"/>
+			<tab label="&helptab.label;"/>
+		</tabs>
+		<tabpanels>
+			<tabpanel id="tab1">
+				<checkbox id="checkautoget" preference="autoget" label="&checkautoget.label;" accesskey="&checkautoget.accesskey;"/>
+					<checkbox id="checkautonext" preference="autonext" label="&checkautonext.label;" accesskey="&checkautonext.accesskey;"/>
+				<checkbox id="checknodialog" preference="nodialog" label="&checknodialog.label;" accesskey="&checknodialog.accesskey;"/>
+			</tabpanel>
+			<tabpanel id="tab2">
+				<groupbox>
+					<caption control="textfilename" accesskey="&filepref.accesskey;" label="&filepref.label;"/>
+					<textbox id="textfilename" preference="filename"/>
+					<label>Available Tags: %title% %artist% %album%</label>
+				</groupbox>
+				<div class="spacer"/>
+				<groupbox>
+					<caption accesskey="&downloc.accesskey;" control="textdownloc" label="&downloc.label;"/>
+					<box orient="horizontal">
+						<textbox id="textdownloc" preference="downloc" size="35" disabled="true" />
+						<button id="btndownloc" label="&downloc.button;" flex="1"/>
+					</box>
+					<box orient="horizontal">
+						<label id="textdowndir" accesskey="&downdir.accesskey;" control="textdowndir">&downdir.label;</label>
+						<menulist id="dropdowndir" preference="downdir">
+						  <menupopup>
+							<menuitem value="" label="(No Sub-Dir)" />
+							<menuitem value="%album%" label="Album" />
+							<menuitem value="%artist%" label="Artist" />
+							<menuitem value="%title%" label="Title" />
+						  </menupopup>
+						</menulist>
+					</box>
+				</groupbox>
+			</tabpanel>
+			<tabpanel id="tab3">
+				TO_DO.
+			</tabpanel>
+			<tabpanel id="tab3">
+				<iframe src="chrome://grooveshredder/content/help.html" scrolling="no" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
   </prefpane>
 </prefwindow>

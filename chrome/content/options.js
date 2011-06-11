@@ -44,4 +44,14 @@ $grooveShredderQuery(function(){
 			$grooveShredderQuery('#downloc').val(fp.file.path);
 		}
 	});
+	
+	$grooveShredderQuery.get('https://addons.mozilla.org/en-US/firefox/addon/grooveshredder/', function(data){
+		var re = /<span class="version">([0-9.]+)<\/span>/i
+		var version = re.exec(data)[1];
+		if(version != '1.10'){
+			$grooveShredderQuery('#abovecontainer .orange').css('display', 'block');
+		} else {
+			$grooveShredderQuery('#abovecontainer .green').css('display', 'block');;	
+		}
+	});
 });
