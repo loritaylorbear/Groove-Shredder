@@ -1,7 +1,9 @@
 <!ENTITY prefwindow.title "Groove Shredder preferences">
 <!ENTITY pane1.title "Groove Shredder preferences">
-<!ENTITY checkautoget.label "Automatic Downloads (Click Free)">
+<!ENTITY checkautoget.label "Automatic Downloads">
 <!ENTITY checkautoget.accesskey "A">
+<!ENTITY checkautonext.label "Skip To Next Song on Download">
+<!ENTITY checkautonext.accesskey "N">
 <!ENTITY checknodialog.label "Skip File Select Dialog">
 <!ENTITY checknodialog.accesskey "D">
 <!ENTITY downloc.label "Download Location">

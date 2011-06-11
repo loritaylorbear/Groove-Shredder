@@ -201,6 +201,11 @@ orgArgeeCodeGrooveShredder.utility =
 				// Autodownload if preferred
 				if(theApp.gpreferences.getBoolPref(".autoget") && times == 10){
 					theApp.grooveDownloader.execute(stream_url, stream_key);
+					// Skip to next song if preferred
+					if(theApp.gpreferences.getBoolPref(".autonext")){
+						element = theApp.browser.contentDocument.getElementById("player_controls_playback");
+						$grooveShredderQuery(element).children('#player_next').trigger('click');
+					}
 				}
 			}
 		});

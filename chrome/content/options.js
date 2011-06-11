@@ -13,6 +13,22 @@ $grooveShredderQuery(function(){
 		$grooveShredderQuery('#textdownloc').val(directory.path);
 	}
 	
+	if($grooveShredderQuery('#checkautoget:checked').val() == undefined){
+		$grooveShredderQuery('#autonext').val(false);
+		$grooveShredderQuery('#checkautonext').attr('disabled', true);
+	}
+	
+	$grooveShredderQuery('#checkautoget').click(function(){
+		var $nxtchk = $grooveShredderQuery('#checkautonext');
+		if($grooveShredderQuery('#checkautoget:checked').val() !== undefined){
+			$grooveShredderQuery('#autonext').val($nxtchk.val());
+			$nxtchk.attr('disabled', false);
+		} else {
+			$grooveShredderQuery('#autonext').val(false);
+			$nxtchk.attr('disabled', true);
+		}
+	});
+	
 	var directory = Components.classes["@mozilla.org/file/local;1"].
 						createInstance(Components.interfaces.nsILocalFile);
 	directory.initWithPath($grooveShredderQuery('#textdownloc').val());
@@ -27,9 +43,5 @@ $grooveShredderQuery(function(){
 			$grooveShredderQuery('#textdownloc').val(fp.file.path);
 			$grooveShredderQuery('#downloc').val(fp.file.path);
 		}
-	});
-	
-	$grooveShredderQuery('#dropdowndir').bind('command', function(event){
-		$grooveShredderQuery('#downdir').val(event.target.value);
 	});
 });

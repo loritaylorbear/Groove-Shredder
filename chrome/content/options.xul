@@ -8,12 +8,14 @@
   <prefpane id="pane1" label="&pane1.title;">
     <preferences>
       <preference id="autoget" name="extensions.grooveshredder.autoget" type="bool"/>
+	  <preference id="autonext" name="extensions.grooveshredder.autonext" type="bool"/>
       <preference id="nodialog" name="extensions.grooveshredder.nodialog" type="bool"/>
       <preference id="filename" name="extensions.grooveshredder.filename" type="string"/>
       <preference id="downloc" name="extensions.grooveshredder.downloc" type="string"/>
       <preference id="downdir" name="extensions.grooveshredder.downdir" type="string"/>
     </preferences>
     <checkbox id="checkautoget" preference="autoget" label="&checkautoget.label;" accesskey="&checkautoget.accesskey;"/>
+	    <checkbox id="checkautonext" preference="autonext" label="&checkautonext.label;" accesskey="&checkautonext.accesskey;"/>
 	<checkbox id="checknodialog" preference="nodialog" label="&checknodialog.label;" accesskey="&checknodialog.accesskey;"/>
     <label accesskey="&downloc.accesskey;" control="textdownloc">&downloc.label;</label>
 	<box orient="horizontal">
@@ -22,7 +24,7 @@
 	</box>
 	<box orient="horizontal">
 		<label id="textdowndir" accesskey="&downdir.accesskey;" control="textdowndir">&downdir.label;</label>
-		<menulist id="dropdowndir">
+		<menulist id="dropdowndir" preference="downdir">
 		  <menupopup>
 			<menuitem value="" label="(No Sub-Dir)" />
 			<menuitem value="%album%" label="Album" />
