@@ -1,7 +1,14 @@
-#checkautonext {
+#grooveshredder-preferences #pane1
+{
+  background: transparent url("chrome://grooveshredder/skin/gs_opt_logo.png") no-repeat;
+}
+
+#checkautonext
+{
 	margin-left: 30px;
 }
 
-#textdowndir {
+#textdowndir
+{
 	padding: 5px 5px 5px 0;
 }
