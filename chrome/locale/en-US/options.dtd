@@ -17,6 +17,8 @@
 <!ENTITY downdir.accesskey "C">
 <!ENTITY filepref.label "Default Filename">
 <!ENTITY filepref.accesskey "F">
+<!ENTITY checkplaydir.label "Create Sub-Directory using Current Playlist">
+<!ENTITY checkplaydir.accesskey "P">
 <!ENTITY thanks.text "Thank you for using Groove Shredder.">
 <!ENTITY updated.text "You are using the latest version.">
 <!ENTITY outdated.text "You are using an outdated version.">

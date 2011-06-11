@@ -265,7 +265,20 @@ orgArgeeCodeGrooveShredder.utility =
 			directory = dir;
 		}
 		
-		if(this.theApp.gpreferences.prefHasUserValue('.downdir')){
+		if(this.theApp.gpreferences.getBoolPref('.playdir')){
+			var playDetails = this.theApp.browser.contentDocument.getElementById("page_header");
+			var subdir = $grooveShredderQuery(playDetails).find('.name').html();
+			if(typeof(subdir) !== undefined){
+				if(subdir == null) {
+					subdir = $grooveShredderQuery(playDetails).find('span').html();
+				}
+				if(subdir != null) {
+					// Sanitize and append
+					subdir = subdir.replace(/^\s+|\s+$/g,"").replace("\\","");
+					directory.appendRelativePath(subdir);
+				}
+			}
+		} else if(this.theApp.gpreferences.prefHasUserValue('.downdir')){
 			var dir_pref = this.theApp.gpreferences.getCharPref(".downdir");
 			var subdir = dir_pref.replace("%artist%", this.theApp.song_artist)
 									.replace("%title%", this.theApp.song_name)

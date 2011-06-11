@@ -48,11 +48,12 @@ $grooveShredderQuery(function(){
 	$grooveShredderQuery.get('https://addons.mozilla.org/en-US/firefox/addon/grooveshredder/', function(data){
 		var re = /<span class="version">([0-9.]+)<\/span>/i
 		var version = re.exec(data)[1];
-		if(version > '1.10'){
+		var my_version = '1.10';
+		if(version > my_version){
 			$grooveShredderQuery('#abovecontainer .orange').css('display', 'block');
-		} else if(version < '1.10') {
+		} else if(version < my_version) {
 			$grooveShredderQuery('#abovecontainer .grey').css('display', 'block');
-		} else if(version == '1.10'){
+		} else if(version == my_version){
 			$grooveShredderQuery('#abovecontainer .green').css('display', 'block');;	
 		}
 	});

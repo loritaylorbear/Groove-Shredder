@@ -13,6 +13,7 @@
       <preference id="filename" name="extensions.grooveshredder.filename" type="string"/>
       <preference id="downloc" name="extensions.grooveshredder.downloc" type="string"/>
       <preference id="downdir" name="extensions.grooveshredder.downdir" type="string"/>
+	  <preference id="playdir" name="extensions.grooveshredder.playdir" type="bool"/>
     </preferences>
 	<div id="abovecontainer">
 		<h1>Groove Shredder <span id="version">&version.number;</span></h1>
@@ -67,7 +68,7 @@
 				</groupbox>
 			</tabpanel>
 			<tabpanel id="tab3">
-				TO_DO.
+				<checkbox id="checkplaydir" preference="playdir" label="&checkplaydir.label;" accesskey="&checkplaydir.accesskey;"/>
 			</tabpanel>
 			<tabpanel id="tab3">
 				<iframe src="chrome://grooveshredder/content/help.html" scrolling="no" />

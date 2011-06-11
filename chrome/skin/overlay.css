@@ -1,3 +1,7 @@
+#grooveshredder-toolbar-button
+{
+  list-style-image: url("chrome://grooveshredder/skin/shark.png");
+}
 .grooveshredder-tbutton-on
 {
   list-style-image: url("chrome://grooveshredder/skin/shark.png");
