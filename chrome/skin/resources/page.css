@@ -1,0 +1,31 @@
+#header #gs-options-link
+{
+  background: #888 url(chrome://grooveshredder/skin/shark-s.png) no-repeat 4px center;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  position: absolute;
+  left: 280px;
+  padding: 5px 5px 5px 24px;
+  top: 8px;
+  -moz-border-radius: 2px;
+}
+
+#header #gs-options-link:hover
+{
+  background-color: #aaa;
+}
+
+#playerDetails_nowPlaying #playerDetails_grooveShredder 
+{
+  cursor:pointer;
+  color: #fff;
+  font-weight: normal;
+  margin-left: 10px;
+  padding: 2px 4px 2px 24px;
+  -moz-border-radius: 2px;
+  background: #888 url(chrome://grooveshredder/skin/shark-s.png) no-repeat 4px center;
+}
+
+#playerDetails_nowPlaying #playerDetails_grooveShredder:hover {
+  background-color: #aaa;
+}

@@ -1,7 +1,8 @@
 content   grooveshredder                 chrome/content/ contentaccessible=yes
 skin      grooveshredder   classic/1.0   chrome/skin/
 locale    grooveshredder   en-US         chrome/locale/en-US/
-
+resource  grooveshredder                 chrome/skin/resources/
 
 overlay   chrome://browser/content/browser.xul   chrome://grooveshredder/content/ff-overlay.xul
-style chrome://global/content/customizeToolbar.xul chrome://grooveshredder/skin/overlay.css chrome://grooveshredder/content/options.css
+style chrome://global/content/customizeToolbar.xul chrome://grooveshredder/skin/overlay.css
+style chrome://browser/content/pref/pref.xul chrome://grooveshredder/content/options.css

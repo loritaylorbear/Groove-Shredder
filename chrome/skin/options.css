@@ -33,8 +33,8 @@
 #abovecontainer label.orange, #abovecontainer label.green, #abovecontainer label.grey
 {
   -moz-border-radius: 5px;
-  margin: 5px 0px;
-  padding: 2px 5px;
+  margin: 5px 0 2px 0;
+  padding: 1px 5px;
   color: #666;
   display: none;
 }
@@ -54,8 +54,20 @@
   background: #ddd;
 }
 
-#abovecontainer a {
+#abovecontainer .links {
+  font-family: Verdana, arial, sans-serif;
+  font-size: 10px;
+}
 
+#abovecontainer .links label {
+  text-decoration: none;
+  color: #3d6db5;
+  margin-right: 10px;
+}
+
+#abovecontainer .links label:hover {
+  text-decoration: underline;
+  color: #003595;
 }
 
 #tabcontainer

@@ -20,6 +20,12 @@
 		<label class="green">&updated.text;</label>
 		<label class="grey">&unreviewed.text;</label>
 		<label class="orange">&outdated.text;</label>
+		<box class="links">
+			<label class="text-link" target="_blank" href="https://www.facebook.com/pages/GrooveShredder/206393792723668">Facebook</label>
+			<label class="text-link" target="_blank" href="http://code.argee.org/groove-shredder/">Blog</label>
+			<label class="text-link" target="_blank" href="https://addons.mozilla.org/en-US/firefox/addon/grooveshredder/">Mozilla</label>
+			<label class="text-link" target="_blank" href="https://github.com/rgarg8/Groove-Shredder">Repository</label>
+		</box>
 	</div>
 	<tabbox id="tabcontainer">
 		<tabs>

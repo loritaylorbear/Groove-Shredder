@@ -64,6 +64,11 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 				this.theApp.browser = gBrowser.getBrowserForDocument(domWin.top.document);
 				this.original = this.original? false : true;
 				if(this.original) this.theApp.utility.createButton(this.theApp.utility.getPostData(subject), 0);
+			} else {
+				var re = /http:\/\/grooveshark.com\/.*$/;
+				if(channel.URI.spec.match(re)){
+					this.theApp.utility.addOptionsLink();
+				}
 			}
 		}
 	},
@@ -185,15 +190,8 @@ orgArgeeCodeGrooveShredder.utility =
 				// Add a button to grooveshark
 				element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
 				$grooveShredderQuery(element).children('b').remove();
-				$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder" style="\
-									cursor:pointer; \
-									color: #fff; \
-									font-weight: normal; \
-									margin-left: 10px; \
-									padding: 2px 4px 2px 24px; \
-									-moz-border-radius: 2px; \
-									background: #888 url(chrome://grooveshredder/skin/shark-s.png) no-repeat 4px center;"> \
-									Download Song</b>');
+				$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder"> \
+																Download Song</b>');
 				$grooveShredderQuery(element).children('b').click(function(){
 					theApp.grooveDownloader.execute(stream_url, stream_key);
 				});
@@ -209,6 +207,23 @@ orgArgeeCodeGrooveShredder.utility =
 				}
 			}
 		});
+	},
+	addOptionsLink: function(){
+		// At the moment this function adds both CSS and the options link
+		var topBar = gBrowser.contentDocument.getElementById("header");
+		if($grooveShredderQuery(topBar).find('#grooveshark').size() > 0
+				&& $grooveShredderQuery(topBar).find('#gs-options-link').size() == 0){
+			$grooveShredderQuery(topBar).append('<a id="gs-options-link"> \
+													Groove Shredder Options</a>');
+			var headElement = gBrowser.contentDocument.getElementsByTagName("head")[0];
+			$grooveShredderQuery(headElement).append('<link rel="stylesheet" type="text/css" \
+														href="resource://grooveshredder/page.css"/>');
+			// Add the event to make things work
+			$grooveShredderQuery(topBar).find('#gs-options-link').click(function(){
+				window.open("chrome://grooveshredder/content/options.xul", 
+								"Groove Shredder preferences", "chrome, centerscreen");
+			});
+		}
 	},
 	getPostData: function(subject){
 		var dataStream = subject.QueryInterface(Components.interfaces.nsIUploadChannel).uploadStream;
