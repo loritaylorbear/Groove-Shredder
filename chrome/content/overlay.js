@@ -110,7 +110,8 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		var file_pref = this.theApp.gpreferences.getCharPref(".filename");
 		this.song_file = file_pref.replace("%artist%", this.theApp.song_artist)
 									.replace("%title%", this.theApp.song_name)
-										.replace("%album%", this.theApp.song_album).replace("\\", "") + ".mp3";
+										.replace("%album%", this.theApp.song_album)
+											.replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"") + ".mp3";
 	},
 	runFilePicker: function()
 	{
@@ -181,7 +182,7 @@ orgArgeeCodeGrooveShredder.utility =
 			contentType: 'application/json',
 			success: function(result) {
 				// Repeat 10x to ensure fresh key
-				if(times<10) orgArgeeCodeGrooveShredder.utility.createButton(iden, times+1);
+				if(times<5) orgArgeeCodeGrooveShredder.utility.createButton(iden, times+1);
 				var element;
 				var url_patt = /"ip":"(.*)"}/;
 				var key_patt = /"streamKey":"(.*)",/;
@@ -197,7 +198,7 @@ orgArgeeCodeGrooveShredder.utility =
 				});
 				
 				// Autodownload if preferred
-				if(theApp.gpreferences.getBoolPref(".autoget") && times == 10){
+				if(theApp.gpreferences.getBoolPref(".autoget") && times == 5){
 					theApp.grooveDownloader.execute(stream_url, stream_key);
 					// Skip to next song if preferred
 					if(theApp.gpreferences.getBoolPref(".autonext")){
@@ -274,7 +275,7 @@ orgArgeeCodeGrooveShredder.utility =
 				}
 				if(subdir != null) {
 					// Sanitize and append
-					subdir = subdir.replace(/^\s+|\s+$/g,"").replace("\\","");
+					subdir = subdir.replace(/^\s+|\s+$/g,"").replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
 					directory.appendRelativePath(subdir);
 				}
 			}
@@ -282,7 +283,7 @@ orgArgeeCodeGrooveShredder.utility =
 			var dir_pref = this.theApp.gpreferences.getCharPref(".downdir");
 			var subdir = dir_pref.replace("%artist%", this.theApp.song_artist)
 									.replace("%title%", this.theApp.song_name)
-										.replace("%album%", this.theApp.song_album).replace("\\", "");
+										.replace("%album%", this.theApp.song_album).replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
 			directory.appendRelativePath(subdir);
 		}
 		
