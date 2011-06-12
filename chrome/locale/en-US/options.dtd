@@ -23,4 +23,4 @@
 <!ENTITY updated.text "You are using the latest version.">
 <!ENTITY outdated.text "You are using an outdated version.">
 <!ENTITY unreviewed.text "This version is being reviewed.">
-<!ENTITY version.number "1.10">
+<!ENTITY version.number "1.11">
