@@ -10,10 +10,12 @@
       <preference id="autoget" name="extensions.grooveshredder.autoget" type="bool"/>
 	  <preference id="autonext" name="extensions.grooveshredder.autonext" type="bool"/>
       <preference id="nodialog" name="extensions.grooveshredder.nodialog" type="bool"/>
+	  <preference id="nodupeprompt" name="extensions.grooveshredder.nodupeprompt" type="bool"/>
       <preference id="filename" name="extensions.grooveshredder.filename" type="string"/>
       <preference id="downloc" name="extensions.grooveshredder.downloc" type="string"/>
       <preference id="downdir" name="extensions.grooveshredder.downdir" type="string"/>
 	  <preference id="playdir" name="extensions.grooveshredder.playdir" type="bool"/>
+	  <preference id="subdowndir" name="extensions.grooveshredder.subdowndir" type="string"/>
     </preferences>
 	<div id="abovecontainer">
 		<h1>Groove Shredder <span id="version">&version.number;</span></h1>
@@ -40,6 +42,7 @@
 				<checkbox id="checkautoget" preference="autoget" label="&checkautoget.label;" accesskey="&checkautoget.accesskey;"/>
 					<checkbox id="checkautonext" preference="autonext" label="&checkautonext.label;" accesskey="&checkautonext.accesskey;"/>
 				<checkbox id="checknodialog" preference="nodialog" label="&checknodialog.label;" accesskey="&checknodialog.accesskey;"/>
+					<checkbox id="checknodupeprompt" preference="nodupeprompt" label="&checknodupeprompt.label;" accesskey="&checknodupeprompt.accesskey;"/>
 			</tabpanel>
 			<tabpanel id="tab2">
 				<groupbox>
@@ -68,6 +71,18 @@
 				</groupbox>
 			</tabpanel>
 			<tabpanel id="tab3">
+				<box orient="horizontal">
+					<label id="textsubdowndir" accesskey="&subdowndir.accesskey;" control="textsubdowndir">&subdowndir.label;</label>
+					<menulist id="dropsubdowndir" preference="subdowndir">
+					  <menupopup>
+						<menuitem value="" label="(No Sub-Dir)" />
+						<menuitem value="%album%" label="Album" />
+						<menuitem value="%artist%" label="Artist" />
+						<menuitem value="%title%" label="Title" />
+					  </menupopup>
+					</menulist>
+				</box>
+				<div class="spacer"/>
 				<checkbox id="checkplaydir" preference="playdir" label="&checkplaydir.label;" accesskey="&checkplaydir.accesskey;"/>
 			</tabpanel>
 			<tabpanel id="tab3">

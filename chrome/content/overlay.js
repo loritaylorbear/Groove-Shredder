@@ -145,6 +145,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 			this.obj_URI = this.ios.newURI(this.url, null, null);
 			this.file_URI = this.ios.newFileURI(this.thefile);
 			if(this.thefile.exists()){
+				if(this.theApp.gpreferences.getBoolPref(".nodupeprompt")) return false;
 				if(!confirm(this.song_file+'\r\nFile exists in target location. Overwrite?')) return false;
 			}
 			return true;
@@ -281,6 +282,15 @@ orgArgeeCodeGrooveShredder.utility =
 			}
 		} else if(this.theApp.gpreferences.prefHasUserValue('.downdir')){
 			var dir_pref = this.theApp.gpreferences.getCharPref(".downdir");
+			var subdir = dir_pref.replace("%artist%", this.theApp.song_artist)
+									.replace("%title%", this.theApp.song_name)
+										.replace("%album%", this.theApp.song_album).replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
+			directory.appendRelativePath(subdir);
+		}
+		
+		// Deal with second sub-directory option
+		if(this.theApp.gpreferences.prefHasUserValue('.subdowndir')){
+			var dir_pref = this.theApp.gpreferences.getCharPref(".subdowndir");
 			var subdir = dir_pref.replace("%artist%", this.theApp.song_artist)
 									.replace("%title%", this.theApp.song_name)
 										.replace("%album%", this.theApp.song_album).replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");

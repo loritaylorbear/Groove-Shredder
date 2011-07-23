@@ -1,6 +1,7 @@
 pref("extensions.grooveshredder.autoget", false);
 pref("extensions.grooveshredder.autonext", false);
 pref("extensions.grooveshredder.nodialog", false);
+pref("extensions.grooveshredder.nodupeprompt", false);
 pref("extensions.grooveshredder.playdir", false);
 pref("extensions.grooveshredder.intpref", 0);
 pref("extensions.grooveshredder.filename", "%title% - %artist%");
