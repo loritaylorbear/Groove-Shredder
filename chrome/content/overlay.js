@@ -185,8 +185,8 @@ orgArgeeCodeGrooveShredder.utility =
 				// Repeat 10x to ensure fresh key
 				if(times<5) orgArgeeCodeGrooveShredder.utility.createButton(iden, times+1);
 				var element;
-				var url_patt = /"ip":"(.*)"}/;
-				var key_patt = /"streamKey":"(.*)",/;
+				var url_patt = /"ip":"([^"]+)"/;
+				var key_patt = /"streamKey":"([^"]+)"/;
 				var stream_url = result.match(url_patt)[1];
 				var stream_key = result.match(key_patt)[1];
 				// Add a button to grooveshark
