@@ -233,7 +233,6 @@ orgArgeeCodeGrooveShredder.utility =
 	 **/
 	createButton: function(iden, times){
 		var theApp = orgArgeeCodeGrooveShredder;
-		theApp.streamToken = iden.match(/[0-9a-z]{46}/g);
 		$grooveShredderQuery.ajax({
 			url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
 			type: 'POST',
@@ -241,13 +240,13 @@ orgArgeeCodeGrooveShredder.utility =
 			dataType: 'text',
 			contentType: 'application/json',
 			success: function(result) {
+				result = $grooveShredderQuery.parseJSON(result);
 				// Repeat 10x to ensure fresh key
 				if(times<5) theApp.utility.createButton(iden, times+1);
 				var element;
-				var url_patt = /"ip":"([^"]+)"/;
-				var key_patt = /"streamKey":"([^"]+)"/;
-				var stream_url = result.match(url_patt)[1];
-				var stream_key = result.match(key_patt)[1];
+				var stream_url = result.result.ip;
+				var stream_key = result.result.streamKey;
+				theApp.streamToken = iden.match(/[0-9a-z]{46}/g);
 				// Add a button to grooveshark
 				element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
 				$grooveShredderQuery(element).children('b').remove();
@@ -322,11 +321,10 @@ orgArgeeCodeGrooveShredder.utility =
 								dataType: 'text',
 								contentType: 'application/json',
 								success: function(result) {
+									result = $grooveShredderQuery.parseJSON(result);
 									var element;
-									var url_patt = /"ip":"([^"]+)"/;
-									var key_patt = /"streamKey":"([^"]+)"/;
-									var stream_url = result.match(url_patt)[1];
-									var stream_key = result.match(key_patt)[1];
+									var stream_url = result.result.ip;
+									var stream_key = result.result.streamKey;
 									theApp.grooveDownloader.execute(stream_url, stream_key, songFile);
 								}
 							});
