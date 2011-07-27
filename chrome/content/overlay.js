@@ -289,12 +289,15 @@ orgArgeeCodeGrooveShredder.utility =
 				// Parse an array of songs from the JSON
 				var songArray = $grooveShredderQuery.parseJSON(result);
 				// Add a button next to the playlist name
-				// This might be risky as Grooveshark tab needs to be selected
-				var element = top.window.content.document.getElementById("page_header");
-				$grooveShredderQuery(element).children('b').remove();
-				$grooveShredderQuery(element).append('<b id="playlistName_grooveShredder"> \
-																Download Song</b>');
-				$grooveShredderQuery(element).children('b').click(function(){
+				var element = theApp.browser.contentDocument.getElementById("page_header");
+				$grooveShredderQuery(element).find('.name').children('b').remove();
+				$grooveShredderQuery(element).find('.name').append('<b id="playlistName_grooveShredder"> \
+																Download Playlist</b>');
+				$grooveShredderQuery(element).find('.name').children('b').click(function(){
+					if(typeof theApp.streamToken === "undefined"){
+						alert("You must play at least one song prior to using this button.");
+						return -1;
+					}
 					songArray.result.Songs.forEach(function(songObject){
 							// Strip out the song's details
 							var songId = songObject.SongID;
@@ -314,7 +317,7 @@ orgArgeeCodeGrooveShredder.utility =
 							toSend = toSend.replace("htmlshark", "jsqueue");
 							// Replace invalid token
 							toSend = toSend.replace(/[0-9a-z]{46}/g,theApp.streamToken);
-							// Fetch the stream key
+							// Fetch the stream key and execute download
 							$grooveShredderQuery.ajax({
 								url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
 								type: 'POST',

@@ -15,7 +15,8 @@
   background-color: #aaa;
 }
 
-#playerDetails_nowPlaying #playerDetails_grooveShredder 
+#playerDetails_nowPlaying #playerDetails_grooveShredder,
+h3 b#playlistName_grooveShredder 
 {
   cursor:pointer;
   color: #fff;
@@ -28,4 +29,16 @@
 
 #playerDetails_nowPlaying #playerDetails_grooveShredder:hover {
   background-color: #aaa;
+}
+
+h3 b#playlistName_grooveShredder {
+  font-size: 12px;
+  padding: 3px 4px 3px 24px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 0;
+  background-color: #aaa;
+}
+
+h3 b#playlistName_grooveShredder:hover {
+
 }
