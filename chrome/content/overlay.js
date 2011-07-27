@@ -145,10 +145,10 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	getFileName: function()
 	{
 		var songBox = this.theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
-		this.theApp.song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
-		this.theApp.song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
-		this.theApp.song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
-		this.parseFileName(this.theApp.song_name, this.theApp.song_artist, this.theApp.song_album);
+		var song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
+		var song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
+		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
+		this.parseFileName(song_name, song_artist, song_album);
 	},
 	parseFileName: function(song_name, song_artist, song_album)
 	{
@@ -156,10 +156,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		this.theApp.song_name = song_name;
 		this.theApp.song_artist = song_artist;
 		this.theApp.song_album = song_album;
-		this.song_file = file_pref.replace("%artist%", song_artist)
-									.replace("%title%", song_name)
-										.replace("%album%", song_album)
-											.replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"") + ".mp3";
+		this.song_file = this.theApp.utility.replaceTags(file_pref) + ".mp3";
 		return this.song_file;
 	},
 	runFilePicker: function()
@@ -393,6 +390,16 @@ orgArgeeCodeGrooveShredder.utility =
 		return postData;
 	},
 	/**
+	 * Replace tags %artist%, %title% and %album% with values, as well as
+	 * sanitizing the file or directory name.
+	 **/
+	replaceTags: function(original){
+		return original.replace("%artist%", this.theApp.song_artist)
+							.replace("%title%", this.theApp.song_name)
+								.replace("%album%", this.theApp.song_album)
+									.replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
+	},
+	/**
 	 * Return the final directory based on set preferences.
 	 **/
 	getDirectory: function(){
@@ -422,18 +429,14 @@ orgArgeeCodeGrooveShredder.utility =
 			}
 		} else if(this.theApp.gpreferences.prefHasUserValue('.downdir')){
 			var dir_pref = this.theApp.gpreferences.getCharPref(".downdir");
-			var subdir = dir_pref.replace("%artist%", this.theApp.song_artist)
-									.replace("%title%", this.theApp.song_name)
-										.replace("%album%", this.theApp.song_album).replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
+			var subdir = this.theApp.utility.replaceTags(dir_pref);
 			directory.appendRelativePath(subdir);
 		}
 		
 		// Deal with second sub-directory option
 		if(this.theApp.gpreferences.prefHasUserValue('.subdowndir')){
 			var dir_pref = this.theApp.gpreferences.getCharPref(".subdowndir");
-			var subdir = dir_pref.replace("%artist%", this.theApp.song_artist)
-									.replace("%title%", this.theApp.song_name)
-										.replace("%album%", this.theApp.song_album).replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
+			var subdir = this.theApp.utility.replaceTags(dir_pref);
 			directory.appendRelativePath(subdir);
 		}
 		
