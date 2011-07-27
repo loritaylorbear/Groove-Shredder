@@ -290,10 +290,10 @@ orgArgeeCodeGrooveShredder.utility =
 				var songArray = $grooveShredderQuery.parseJSON(result);
 				// Add a button next to the playlist name
 				var element = theApp.browser.contentDocument.getElementById("page_header");
-				$grooveShredderQuery(element).find('.name').children('b').remove();
-				$grooveShredderQuery(element).find('.name').append('<b id="playlistName_grooveShredder"> \
+				$grooveShredderQuery(element).find('.meta').children('b').remove();
+				$grooveShredderQuery(element).find('.name').after('<b id="playlistName_grooveShredder"> \
 																Download Playlist</b>');
-				$grooveShredderQuery(element).find('.name').children('b').click(function(){
+				$grooveShredderQuery(element).find('.meta').children('b').click(function(){
 					if(typeof theApp.streamToken === "undefined"){
 						alert("You must play at least one song prior to using this button.");
 						return -1;
