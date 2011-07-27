@@ -3,7 +3,7 @@
 <?xml-stylesheet href="chrome://grooveshredder/skin/options.css" type="text/css"?>
 <!DOCTYPE prefwindow SYSTEM "chrome://grooveshredder/locale/options.dtd">
 <prefwindow id="grooveshredder-preferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
-<script src="jquery.js"/>
+<script src="jquery-old.js"/>
 <script src="options.js"/>
   <prefpane id="pane1" label="&pane1.title;">
     <preferences>
