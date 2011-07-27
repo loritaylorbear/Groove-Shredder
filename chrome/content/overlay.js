@@ -84,7 +84,7 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 				// Simple toggle to prevent two requests for the price of one
 				this.originalSng = this.originalSng? false : true;
 				// Create the "Download Song" button using the posted data
-				if(this.originalSng) this.theApp.utility.createButton(this.theApp.utility.getPostData(subject), 0);
+				if(this.originalSng) this.theApp.utility.preSongButton(this.theApp.utility.getPostData(subject));
 			} else if(channel.URI.spec.match(list_url)){
 				// Simple toggle to prevent two requests for the price of one
 				this.originalLst = this.originalLst? false : true;
@@ -229,44 +229,47 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 orgArgeeCodeGrooveShredder.utility = 
 {
 	/**
-	 * Create the "Download Song" button and append it to the page.
+	 * Perform the functions that must take place before the "Download Song"
+	 * button is actually appended.
 	 **/
-	createButton: function(iden, times){
+	preSongButton: function(postdata){
 		var theApp = orgArgeeCodeGrooveShredder;
-		$grooveShredderQuery.ajax({
-			url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
-			type: 'POST',
-			data: iden,
-			dataType: 'text',
-			contentType: 'application/json',
-			success: function(result) {
-				result = $grooveShredderQuery.parseJSON(result);
-				// Repeat 10x to ensure fresh key
-				if(times<5) theApp.utility.createButton(iden, times+1);
-				var element;
-				var stream_url = result.result.ip;
-				var stream_key = result.result.streamKey;
-				theApp.streamToken = iden.match(/[0-9a-z]{46}/g);
-				// Add a button to grooveshark
-				element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
-				$grooveShredderQuery(element).children('b').remove();
-				$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder"> \
-																Download Song</b>');
-				$grooveShredderQuery(element).children('b').click(function(){
-					theApp.grooveDownloader.execute(stream_url, stream_key, "");
-				});
-				
-				// Autodownload if preferred
-				if(theApp.gpreferences.getBoolPref(".autoget") && times == 5){
-					theApp.grooveDownloader.execute(stream_url, stream_key, "");
-					// Skip to next song if preferred
-					if(theApp.gpreferences.getBoolPref(".autonext")){
-						element = theApp.browser.contentDocument.getElementById("player_controls_playback");
+		// Store the POST data for re-use
+		theApp.streamKeyData = postdata;
+		// Call getStreamKey multiple times to ensure fresh key
+		theApp.utility.getStreamKey(0, theApp.utility.addSongButton, true, 5);
+	},
+	/**
+	 * Add the "Download Song" button, and initiate the download if user
+	 * preferences allow.
+	 **/
+	addSongButton: function(stream_url, stream_key, last_call){
+		var theApp = orgArgeeCodeGrooveShredder;
+		if(last_call){
+			var element;	
+			// Add a button to grooveshark
+			element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
+			$grooveShredderQuery(element).children('b').remove();
+			$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder"> \
+													Download Song</b>');
+			$grooveShredderQuery(element).children('b').click(function(){
+				theApp.grooveDownloader.execute(stream_url, stream_key, "");
+			});
+			// Autodownload if preferred
+			if(theApp.gpreferences.getBoolPref(".autoget") && last_call){
+				// Download the song automagically
+				theApp.grooveDownloader.execute(stream_url, stream_key, "");
+				// Skip to next song if preferred
+				if(theApp.gpreferences.getBoolPref(".autonext")){
+					try{
 						$grooveShredderQuery(element).children('#player_next').trigger('click');
+					}
+					catch(err){
+						alert(err);
 					}
 				}
 			}
-		});
+		}
 	},
 	/**
 	 * Create the "Download Playlist" button and append it to the page.
@@ -356,6 +359,29 @@ orgArgeeCodeGrooveShredder.utility =
 								"Groove Shredder preferences", "chrome, centerscreen");
 			});
 		}
+	},
+	/**
+	 * Given a song ID, get a stream key from Grooveshark.
+	 **/
+	getStreamKey: function(song_id, callback, params, times){
+		var theApp = orgArgeeCodeGrooveShredder;
+		var postdata = theApp.streamKeyData;
+		if(song_id != 0) postdata = postdata.replace(/"songID":[0-9]+/g,
+													 '"songID":'+song_id);
+		$grooveShredderQuery.ajax({
+			url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
+			type: 'POST',
+			data: postdata,
+			dataType: 'text',
+			contentType: 'application/json',
+			success: function(result) {
+				result = $grooveShredderQuery.parseJSON(result);
+				if(times == 0)
+					callback(result.result.ip, result.result.streamKey, params);
+				else
+					theApp.utility.getStreamKey(song_id, callback, params, times-1);
+			}
+		});
 	},
 	/**
 	 * Extract the plaintext POST data from a given subject.
