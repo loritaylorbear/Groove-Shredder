@@ -292,7 +292,11 @@ orgArgeeCodeGrooveShredder.utility =
 				$grooveShredderQuery(element).find('.meta').children('b').click(function(){
 					if(typeof theApp.streamToken === "undefined"){
 						alert("You must play at least one song prior to using this button.");
-						return -1;
+						return false;
+					} else if(!theApp.gpreferences.getBoolPref(".nodupeprompt")){
+						// Warn the user, too many duplicate files spell disaster
+						if(!confirm('It is HIGHLY recommended to turn off duplicate file prompts.\r\n' +
+									'Do you still want to Continue?')) return false;
 					}
 					songArray.result.Songs.forEach(function(songObject){
 							// Strip out the song's details
