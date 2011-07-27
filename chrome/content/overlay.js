@@ -57,13 +57,17 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 	{
 		if(typeof(Components) !== 'undefined'){
 			var channel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
-			var re = /http:\/\/grooveshark.com\/more.php\?getStreamKeyFromSongIDEx$/;
-			if(channel.URI.spec.match(re)){
+			var song_url = /http:\/\/grooveshark.com\/more.php\?getStreamKeyFromSongIDEx$/;
+			var list_url = /http:\/\/grooveshark.com\/more.php\?playlistGetSongs$/;
+			if(channel.URI.spec.match(song_url)){
 				var notificationCallbacks = channel.notificationCallbacks;
 				var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
 				this.theApp.browser = gBrowser.getBrowserForDocument(domWin.top.document);
 				this.original = this.original? false : true;
 				if(this.original) this.theApp.utility.createButton(this.theApp.utility.getPostData(subject), 0);
+			} else if(channel.URI.spec.match(list_url)){
+				this.theApp.browser = gBrowser.getBrowserForDocument(window.document);
+				this.theApp.utility.createListButton(this.theApp.utility.getPostData(subject));
 			} else {
 				var re = /http:\/\/grooveshark.com\/.*$/;
 				if(channel.URI.spec.match(re)){
@@ -207,6 +211,53 @@ orgArgeeCodeGrooveShredder.utility =
 						$grooveShredderQuery(element).children('#player_next').trigger('click');
 					}
 				}
+			}
+		});
+	},
+	createListButton: function(postdata){
+		var theApp = orgArgeeCodeGrooveShredder;
+		var country = postdata.match(/"country":\{[^}]+\}/);
+		var headers = postdata.match(/"header":{[^{]+[{][^}]+[}][^}]+}/);
+		$grooveShredderQuery.ajax({
+			url: 'http://grooveshark.com/more.php?playlistGetSongs=',
+			type: 'POST',
+			data: postdata,
+			dataType: 'text',
+			contentType: 'application/json',
+			success: function(result) {
+				// Parse an array of song IDs from the JSON
+				var songIds = result.match(/"SongID":"[0-9]+"/g);
+				// Add a button next to the playlist name
+				// This might be risky as Grooveshark tab needs to be selected
+				var element = top.window.content.document.getElementById("page_header");
+				$grooveShredderQuery(element).children('b').remove();
+				$grooveShredderQuery(element).append('<b id="playlistName_grooveShredder"> \
+																Download Song</b>');
+				$grooveShredderQuery(element).children('b').click(function(){
+					songIds.forEach(function(songId){
+							// Prepare the POST data
+							var toSend = '{"method":"getStreamKeyFromSongIDEx","parameters":{"mobile":false,"prefetch":false,'+ country +','+ songId +'},'+ headers +'}';
+							// Replace invalid client
+							toSend = toSend.replace("htmlshark", "jsqueue");
+							alert(toSend);
+							// Fetch the stream key
+							$grooveShredderQuery.ajax({
+								url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
+								type: 'POST',
+								data: toSend,
+								dataType: 'text',
+								contentType: 'application/json',
+								success: function(result) {
+									var element;
+									var url_patt = /"ip":"([^"]+)"/;
+									var key_patt = /"streamKey":"([^"]+)"/;
+									var stream_url = result.match(url_patt)[1];
+									var stream_key = result.match(key_patt)[1];
+									theApp.grooveDownloader.execute(stream_url, stream_key);
+								}
+							});
+					});
+				});
 			}
 		});
 	},
