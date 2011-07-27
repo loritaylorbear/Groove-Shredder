@@ -148,11 +148,19 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		this.theApp.song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
 		this.theApp.song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
 		this.theApp.song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
+		this.parseFileName(this.theApp.song_name, this.theApp.song_artist, this.theApp.song_album);
+	},
+	parseFileName: function(song_name, song_artist, song_album)
+	{
 		var file_pref = this.theApp.gpreferences.getCharPref(".filename");
-		this.song_file = file_pref.replace("%artist%", this.theApp.song_artist)
-									.replace("%title%", this.theApp.song_name)
-										.replace("%album%", this.theApp.song_album)
+		this.theApp.song_name = song_name;
+		this.theApp.song_artist = song_artist;
+		this.theApp.song_album = song_album;
+		this.song_file = file_pref.replace("%artist%", song_artist)
+									.replace("%title%", song_name)
+										.replace("%album%", song_album)
 											.replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"") + ".mp3";
+		return this.song_file;
 	},
 	runFilePicker: function()
 	{
@@ -200,10 +208,14 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		this.persist.progressListener = this.xfer; 
 		this.persist.saveURI(this.obj_URI, null, null, this.data, "", this.thefile);	
 	},
-	execute: function(url, data)
+	execute: function(url, data, filename)
 	{
 		this.init(url, data);
-		this.getFileName();
+		if(filename.length == 0){
+			this.getFileName();
+		} else {
+			this.song_file = filename;
+		}
 		if(this.runFilePicker()){
 			this.saveSong();
 		}
@@ -245,12 +257,12 @@ orgArgeeCodeGrooveShredder.utility =
 				$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder"> \
 																Download Song</b>');
 				$grooveShredderQuery(element).children('b').click(function(){
-					theApp.grooveDownloader.execute(stream_url, stream_key);
+					theApp.grooveDownloader.execute(stream_url, stream_key, "");
 				});
 				
 				// Autodownload if preferred
 				if(theApp.gpreferences.getBoolPref(".autoget") && times == 5){
-					theApp.grooveDownloader.execute(stream_url, stream_key);
+					theApp.grooveDownloader.execute(stream_url, stream_key, "");
 					// Skip to next song if preferred
 					if(theApp.gpreferences.getBoolPref(".autonext")){
 						element = theApp.browser.contentDocument.getElementById("player_controls_playback");
@@ -274,8 +286,8 @@ orgArgeeCodeGrooveShredder.utility =
 			dataType: 'text',
 			contentType: 'application/json',
 			success: function(result) {
-				// Parse an array of song IDs from the JSON
-				var songIds = result.match(/"SongID":"[0-9]+"/g);
+				// Parse an array of songs from the JSON
+				var songArray = $grooveShredderQuery.parseJSON(result);
 				// Add a button next to the playlist name
 				// This might be risky as Grooveshark tab needs to be selected
 				var element = top.window.content.document.getElementById("page_header");
@@ -283,9 +295,13 @@ orgArgeeCodeGrooveShredder.utility =
 				$grooveShredderQuery(element).append('<b id="playlistName_grooveShredder"> \
 																Download Song</b>');
 				$grooveShredderQuery(element).children('b').click(function(){
-					songIds.forEach(function(songId){
-							// Strip out the numerical song ID
-							songId = songId.match(/[0-9]+/);
+					songArray.result.Songs.forEach(function(songObject){
+							// Strip out the song's details
+							var songId = songObject.SongID;
+							var songName = songObject.Name;
+							var songAlbum = songObject.AlbumName;
+							var songArtist = songObject.ArtistName;
+							var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
 							// Prepare the POST data
 							var toSend = '{"method":"getStreamKeyFromSongIDEx",\
 										   "parameters":\
@@ -311,7 +327,7 @@ orgArgeeCodeGrooveShredder.utility =
 									var key_patt = /"streamKey":"([^"]+)"/;
 									var stream_url = result.match(url_patt)[1];
 									var stream_key = result.match(key_patt)[1];
-									theApp.grooveDownloader.execute(stream_url, stream_key);
+									theApp.grooveDownloader.execute(stream_url, stream_key, songFile);
 								}
 							});
 					});
