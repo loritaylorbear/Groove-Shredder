@@ -50,25 +50,52 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
   theApp : orgArgeeCodeGrooveShredder
 };
 
-/* The HTTP Observer / Listener that monitors requests */
+/**
+ * grooveRequestObserver
+ * 
+ * The HTTP Listener that monitors all outgoing requests.
+ **/
 orgArgeeCodeGrooveShredder.grooveRequestObserver = 
 {
+	/**
+	 * This function observes all requests and performs the appropriate
+	 * actions when an event useful to us is detected.
+	 **/
 	observe: function(subject, topic, data)
 	{
 		if(typeof(Components) !== 'undefined'){
-			var channel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
+			// This URL indicates that a new connection is being established
+			var token_url = /https?:\/\/grooveshark.com\/more.php\?getCommunicationToken$/;
+			// A URL of this format indicates that a song is being played
 			var song_url = /http:\/\/grooveshark.com\/more.php\?getStreamKeyFromSongIDEx$/;
+			// A URL of this format indicates that a playlist is being loaded
 			var list_url = /http:\/\/grooveshark.com\/more.php\?playlistGetSongs$/;
-			if(channel.URI.spec.match(song_url)){
+
+			// Obtain the HTTP channel from the observed subject
+			var channel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
+
+			// Perform the actions appropriate to the event
+			if(channel.URI.spec.match(token_url)){
+				alert(1);
+				// Grooveshark was opened in this tab, remember the tab
 				var notificationCallbacks = channel.notificationCallbacks;
 				var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
 				this.theApp.browser = gBrowser.getBrowserForDocument(domWin.top.document);
-				this.original = this.original? false : true;
-				if(this.original) this.theApp.utility.createButton(this.theApp.utility.getPostData(subject), 0);
+				// Fetch a communication token for us to use
+				this.theApp.utility.setCommToken(this.theApp.utility.getPostData(subject));
+			} else if(channel.URI.spec.match(song_url)){
+				// Simple toggle to prevent two requests for the price of one
+				this.originalSng = this.originalSng? false : true;
+				// Create the "Download Song" button using the posted data
+				if(this.originalSng) this.theApp.utility.createButton(this.theApp.utility.getPostData(subject), 0);
 			} else if(channel.URI.spec.match(list_url)){
-				this.theApp.browser = gBrowser.getBrowserForDocument(window.document);
-				this.theApp.utility.createListButton(this.theApp.utility.getPostData(subject));
+				// Simple toggle to prevent two requests for the price of one
+				this.originalLst = this.originalLst? false : true;
+				// Create the "Download Playlist" button using the posted data
+				if(this.originalLst) this.theApp.utility.createListButton(this.theApp.utility.getPostData(subject));
 			} else {
+				// If no special URL matched, we check for any Grooveshark
+				// related request and add the options link
 				var re = /http:\/\/grooveshark.com\/.*$/;
 				if(channel.URI.spec.match(re)){
 					this.theApp.utility.addOptionsLink();
@@ -76,15 +103,24 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 			}
 		}
 	},
+	/**
+	 * Accessor to fetch the observer service
+	 **/
 	get observerService() {
 		return Components.classes["@mozilla.org/observer-service;1"]
 						 .getService(Components.interfaces.nsIObserverService);
 	},
+	/**
+	 * Register the observer (attach it to Firefox)
+	 **/
 	register: function()
 	{
 		this.original = true;
 		this.observerService.addObserver(this, "http-on-modify-request", false);
 	},
+	/**
+	 * Unregister the observer (detach it from Firefox)
+	 **/
 	unregister: function()
 	{
 		this.observerService.removeObserver(this, "http-on-modify-request");
@@ -92,7 +128,11 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 	theApp : orgArgeeCodeGrooveShredder
 };
 
-/* This 'class' handles most of the download logic */
+/**
+ * grooveDownloader
+ *
+ * Handled most of the download logic exclusively.
+ **/
 orgArgeeCodeGrooveShredder.grooveDownloader = 
 {
 	init: function(url, dataString) {
@@ -174,9 +214,46 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	theApp : orgArgeeCodeGrooveShredder
 };
 
-/* Utility functions used throughout the extension */
+/**
+ * utility
+ *
+ * Provides utility functions used throughout the extension, as well
+ * as performing most of the communication with Grooveshark.
+ **/
 orgArgeeCodeGrooveShredder.utility = 
 {
+	/**
+	 * Fetch a communication token and save it.
+	 **/
+	setCommToken: function(postdata){
+		$grooveShredderQuery.ajax({
+			url: 'http://grooveshark.com/more.php?getCommunicationToken=',
+			type: 'POST',
+			data: postdata,
+			dataType: 'text',
+			contentType: 'application/json',
+			success: function(result) {
+				// This expression will match the token
+				var exp = /"result":"([^"]+)"/g;
+				var res = exp.exec(result);
+				// Store the token in a safe place
+				orgArgeeCodeGrooveShredder.commToken = res[1];
+			}
+		});
+	},
+	/**
+	 * Generate a one-time request token.
+	 **/
+	getRequestToken: function(method){
+		var theApp = orgArgeeCodeGrooveShredder;
+		var sixRndChar = "aaaaaa"
+		var totalToken = method + ":" + theApp.commToken + ":quitStealinMahShit:" + sixRndChar;
+		totalToken = theApp.utility.generateSha1(totalToken);
+		return sixRndChar + totalToken;
+	},
+	/**
+	 * Create the "Download Song" button and append it to the page.
+	 **/
 	createButton: function(iden, times){
 		var theApp = orgArgeeCodeGrooveShredder;
 		$grooveShredderQuery.ajax({
@@ -187,7 +264,7 @@ orgArgeeCodeGrooveShredder.utility =
 			contentType: 'application/json',
 			success: function(result) {
 				// Repeat 10x to ensure fresh key
-				if(times<5) orgArgeeCodeGrooveShredder.utility.createButton(iden, times+1);
+				if(times<5) theApp.utility.createButton(iden, times+1);
 				var element;
 				var url_patt = /"ip":"([^"]+)"/;
 				var key_patt = /"streamKey":"([^"]+)"/;
@@ -214,6 +291,9 @@ orgArgeeCodeGrooveShredder.utility =
 			}
 		});
 	},
+	/**
+	 * Create the "Download Playlist" button and append it to the page.
+	 **/
 	createListButton: function(postdata){
 		var theApp = orgArgeeCodeGrooveShredder;
 		var country = postdata.match(/"country":\{[^}]+\}/);
@@ -261,6 +341,9 @@ orgArgeeCodeGrooveShredder.utility =
 			}
 		});
 	},
+	/**
+	 * Create the 'options' link and append it to the page.
+	 **/
 	addOptionsLink: function(){
 		// At the moment this function adds both CSS and the options link
 		var topBar = gBrowser.contentDocument.getElementById("header");
@@ -278,6 +361,9 @@ orgArgeeCodeGrooveShredder.utility =
 			});
 		}
 	},
+	/**
+	 * Extract the plaintext POST data from a given subject.
+	 **/
 	getPostData: function(subject){
 		var dataStream = subject.QueryInterface(Components.interfaces.nsIUploadChannel).uploadStream;
 		dataStream.QueryInterface(Ci.nsISeekableStream).seek(Ci.nsISeekableStream.NS_SEEK_SET, 0);
@@ -289,6 +375,9 @@ orgArgeeCodeGrooveShredder.utility =
 		var re = /{.*}/;
 		return poststr.match(re)[0];
 	},
+	/**
+	 * Create the POST data input stream from plaintext.
+	 **/
 	newPostData: function(dataString){
 		dataString = 'streamKey='+dataString.replace('_', '%5F');
 		const Cc = Components.classes;
@@ -306,6 +395,9 @@ orgArgeeCodeGrooveShredder.utility =
 		postData.setData(stringStream);
 		return postData;
 	},
+	/**
+	 * Return the final directory based on set preferences.
+	 **/
 	getDirectory: function(){
 		var directory;
 		Components.utils.import("resource://gre/modules/FileUtils.jsm");
@@ -349,6 +441,163 @@ orgArgeeCodeGrooveShredder.utility =
 		}
 		
 		return directory;
+	},
+	/**
+	 * Generate a SHA-1 hash given a plaintext string.
+	 */
+	generateSha1: function(msg){
+		function rotate_left(n,s) {
+			var t4 = ( n<<s ) | (n>>>(32-s));
+			return t4;
+		};
+
+		function lsb_hex(val) {
+			var str="";
+			var i;
+			var vh;
+			var vl;
+			for( i=0; i<=6; i+=2 ) {
+				vh = (val>>>(i*4+4))&0x0f;
+				vl = (val>>>(i*4))&0x0f;
+				str += vh.toString(16) + vl.toString(16);
+			}
+			return str;
+		};
+
+		function cvt_hex(val) {
+			var str="";
+			var i;
+			var v;
+			for( i=7; i>=0; i-- ) {
+				v = (val>>>(i*4))&0x0f;
+				str += v.toString(16);
+			}
+			return str;
+		};
+
+		function Utf8Encode(string) {
+			string = string.replace(/\r\n/g,"\n");
+			var utftext = "";
+
+			for (var n = 0; n < string.length; n++) {
+				var c = string.charCodeAt(n);
+				if (c < 128) {
+					utftext += String.fromCharCode(c);
+				}
+				else if((c > 127) && (c < 2048)) {
+					utftext += String.fromCharCode((c >> 6) | 192);
+					utftext += String.fromCharCode((c & 63) | 128);
+				}
+				else {
+					utftext += String.fromCharCode((c >> 12) | 224);
+					utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+					utftext += String.fromCharCode((c & 63) | 128);
+				}
+			}
+			return utftext;
+		};
+
+		var blockstart;
+		var i, j;
+		var W = new Array(80);
+		var H0 = 0x67452301;
+		var H1 = 0xEFCDAB89;
+		var H2 = 0x98BADCFE;
+		var H3 = 0x10325476;
+		var H4 = 0xC3D2E1F0;
+		var A, B, C, D, E;
+		var temp;
+
+		msg = Utf8Encode(msg);
+
+		var msg_len = msg.length;
+
+		var word_array = new Array();
+		for( i=0; i<msg_len-3; i+=4 ) {
+			j = msg.charCodeAt(i)<<24 | msg.charCodeAt(i+1)<<16 |
+			msg.charCodeAt(i+2)<<8 | msg.charCodeAt(i+3);
+			word_array.push( j );
+		}
+
+		switch( msg_len % 4 ) {
+			case 0:
+				i = 0x080000000;
+			break;
+			case 1:
+				i = msg.charCodeAt(msg_len-1)<<24 | 0x0800000;
+			break;
+
+			case 2:
+				i = msg.charCodeAt(msg_len-2)<<24 | msg.charCodeAt(msg_len-1)<<16 | 0x08000;
+			break;
+
+			case 3:
+				i = msg.charCodeAt(msg_len-3)<<24 | msg.charCodeAt(msg_len-2)<<16 | msg.charCodeAt(msg_len-1)<<8	| 0x80;
+			break;
+		}
+
+		word_array.push( i );
+
+		while( (word_array.length % 16) != 14 ) word_array.push( 0 );
+
+		word_array.push( msg_len>>>29 );
+		word_array.push( (msg_len<<3)&0x0ffffffff );
+
+		for ( blockstart=0; blockstart<word_array.length; blockstart+=16 ) {
+			for( i=0; i<16; i++ ) W[i] = word_array[blockstart+i];
+			for( i=16; i<=79; i++ ) W[i] = rotate_left(W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16], 1);
+
+			A = H0;
+			B = H1;
+			C = H2;
+			D = H3;
+			E = H4;
+
+			for( i= 0; i<=19; i++ ) {
+				temp = (rotate_left(A,5) + ((B&C) | (~B&D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;
+				E = D;
+				D = C;
+				C = rotate_left(B,30);
+				B = A;
+				A = temp;
+			}
+
+			for( i=20; i<=39; i++ ) {
+				temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
+				E = D;
+				D = C;
+				C = rotate_left(B,30);
+				B = A;
+				A = temp;
+			}
+
+			for( i=40; i<=59; i++ ) {
+				temp = (rotate_left(A,5) + ((B&C) | (B&D) | (C&D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
+				E = D;
+				D = C;
+				C = rotate_left(B,30);
+				B = A;
+				A = temp;
+			}
+
+			for( i=60; i<=79; i++ ) {
+				temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;
+				E = D;
+				D = C;
+				C = rotate_left(B,30);
+				B = A;
+				A = temp;
+			}
+
+			H0 = (H0 + A) & 0x0ffffffff;
+			H1 = (H1 + B) & 0x0ffffffff;
+			H2 = (H2 + C) & 0x0ffffffff;
+			H3 = (H3 + D) & 0x0ffffffff;
+			H4 = (H4 + E) & 0x0ffffffff;
+		}
+
+		var temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
+		return temp.toLowerCase();
 	},
 	theApp : orgArgeeCodeGrooveShredder
 }
