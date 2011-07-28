@@ -268,6 +268,7 @@ orgArgeeCodeGrooveShredder.utility =
 	},
 	/**
 	 * Create the "Download Playlist" button and append it to the page.
+	 * This function also attaches a listener to the sidebar for persistence.
 	 **/
 	addListButton: function(postdata){
 		var theApp = orgArgeeCodeGrooveShredder;
@@ -278,6 +279,17 @@ orgArgeeCodeGrooveShredder.utility =
 			dataType: 'text',
 			contentType: 'application/json',
 			success: function(result) {
+				// First, attach the sidebar listener
+				// Get the playlist's ID
+				var post = $grooveShredderQuery.parseJSON(postdata);
+				var p_id = post.parameters.playlistID;
+				// Get the playlist's sidebar button
+				var p_btn = theApp.browser.contentDocument.getElementById("sidebar_playlist_" + p_id);
+				// Attach the listener
+				$grooveShredderQuery(p_btn).click(function(){
+					theApp.utility.addListButton(postdata);
+				});
+				// Second, instantiate the actual button
 				// Parse an array of songs from the JSON
 				var songArray = $grooveShredderQuery.parseJSON(result);
 				// Add a button next to the playlist name
