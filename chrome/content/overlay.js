@@ -200,7 +200,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	saveSong: function()
 	{
 		var dbutton = this.theApp.browser.contentDocument.getElementById("playerDetails_grooveShredder");
-		$grooveShredderQuery(dbutton).animate({opacity:0.25},800).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
+		$grooveShredderQuery(dbutton).fadeTo("slow",0.25).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
 		this.xfer.init(this.obj_URI, this.file_URI, "", null, null, null, this.persist);
 		this.persist.progressListener = this.xfer; 
 		this.persist.saveURI(this.obj_URI, null, null, this.data, "", this.thefile);	
@@ -261,12 +261,7 @@ orgArgeeCodeGrooveShredder.utility =
 				theApp.grooveDownloader.execute(stream_url, stream_key, "");
 				// Skip to next song if preferred
 				if(theApp.gpreferences.getBoolPref(".autonext")){
-					try{
-						$grooveShredderQuery(element).children('#player_next').trigger('click');
-					}
-					catch(err){
-						alert(err);
-					}
+					theApp.browser.contentDocument.getElementById("player_next").click();
 				}
 			}
 		}
