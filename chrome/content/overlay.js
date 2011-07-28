@@ -308,6 +308,8 @@ orgArgeeCodeGrooveShredder.utility =
 									'as well as skipping the file select dialog.\r\n' +
 									'Do you still want to Continue?')) return false;
 					}
+					// Use a timer to download incrementally
+					var timer = 0;
 					songArray.result.Songs.forEach(function(songObject){
 							// Strip out the song's details
 							var songId = songObject.SongID;
@@ -316,7 +318,10 @@ orgArgeeCodeGrooveShredder.utility =
 							var songArtist = songObject.ArtistName;
 							var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
 							// Fetch the stream key and execute download
-							theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
+							setTimeout(function(){
+								theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
+							},timer);
+							timer += 1000;
 					});
 				});
 			}
