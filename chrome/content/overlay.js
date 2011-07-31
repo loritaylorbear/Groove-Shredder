@@ -98,12 +98,12 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 				// Grooveshark was opened in this tab, remember the tab
 				var notificationCallbacks = channel.notificationCallbacks;
 				var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
-				this.theApp.browser = gBrowser.getBrowserForDocument(domWin.top.document);
+				var browsy = gBrowser.getBrowserForDocument(domWin.top.document);
+				this.theApp.browser = browsy;
 				// Attach a DOM change listener to the page
-				this.theApp.browser.addEventListener
-									("DOMNodeInserted",
-									this.theApp.utility.domChanged,
-									false);
+				browsy.contentDocument.addEventListener("DOMNodeInserted",
+										 				this.theApp.utility.domChanged,
+										 				false);
 			} else if(channel.URI.spec.match(song_url)){
 				// Simple toggle to prevent two requests for the price of one
 				this.originalSng = this.originalSng? false : true;
