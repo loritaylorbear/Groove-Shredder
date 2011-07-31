@@ -6,48 +6,67 @@ var orgArgeeCodeGrooveShredder = {};
 orgArgeeCodeGrooveShredder.pref_service = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 orgArgeeCodeGrooveShredder.gpreferences = orgArgeeCodeGrooveShredder.pref_service.getBranch("extensions.grooveshredder");
 
-/* Handler for the main listener and toolbar logic */
+/**
+ * grooveshredder
+ * 
+ * Manages the request observer and toolbar actions.
+ **/
 orgArgeeCodeGrooveShredder.grooveshredder = {
-  onLoad: function() {
-    // initialization code
-    this.theApp.grooveRequestObserver.register();
-    // to be or not to be
-    if(this.theApp.gpreferences.prefHasUserValue("enabled")){
-    	if(this.theApp.gpreferences.getBoolPref("enabled")){
-    		this.setEnabled();
-    	} else {
-    		this.setDisabled();
-    	}
-    } else {
-    	this.setEnabled();
-    }
-  },
-  onToolbarButtonCommand: function(e) {
-    // If on turn off, if off turn on!
-    if(this.initialized){
-    	this.setDisabled();
-		alert("Grooveshredder is now disabled.");
-	} else {
-		this.setEnabled();
-		alert("Grooveshredder is now enabled.");
-	}
-  },
-  setEnabled: function() {
-  		var btn = document.getElementById("grooveshredder-toolbar-button");
+	/**
+	* This runs every time Firefox starts.
+	**/
+	onLoad: function() {
+		// Register the observer.
+		this.theApp.grooveRequestObserver.register();
+		// Check whether Groove Shredder is enabled.
+		if(this.theApp.gpreferences.prefHasUserValue("enabled")){
+			if(this.theApp.gpreferences.getBoolPref("enabled")){
+				// Register observer.
+				this.setEnabled();
+			} else {
+				// Unregister observer.
+				this.setDisabled();
+			}
+		} else {
+			// If the preference is blank, enable.
+			this.setEnabled();
+		}
+	},
+	/**
+	* Handle toolbar button behavior.
+	**/
+	onToolbarButtonCommand: function(e) {
+		// If on turn off, if off turn on!
+		if(this.initialized){
+			this.setDisabled();
+			alert("Grooveshredder is now disabled.");
+		} else {
+			this.setEnabled();
+			alert("Grooveshredder is now enabled.");
+		}
+	},
+	/**
+	* Register the observer and stylize the button.
+	**/
+	setEnabled: function() {
+		var btn = document.getElementById("grooveshredder-toolbar-button");
 		this.initialized = true;
 		this.theApp.gpreferences.setBoolPref("enabled", true);
 		this.theApp.grooveRequestObserver.register();
 		if(btn !== null)
-			btn.setAttribute("class","grooveshredder-tbutton-on toolbarbutton-1 chromeclass-toolbar-additional");  
-  },
-  setDisabled: function() {
-  		var btn = document.getElementById("grooveshredder-toolbar-button");
+			btn.setAttribute("class","grooveshredder-tbutton-on toolbarbutton-1 chromeclass-toolbar-additional");	
+	},
+	/**
+	* Unregister the observer and stylize the button.
+	**/
+	setDisabled: function() {
+		var btn = document.getElementById("grooveshredder-toolbar-button");
 		this.initialized = false;
 		this.theApp.gpreferences.setBoolPref("enabled", false);
 		this.theApp.grooveRequestObserver.unregister();
 		btn.setAttribute("class","grooveshredder-tbutton-off toolbarbutton-1 chromeclass-toolbar-additional");
-  },
-  theApp : orgArgeeCodeGrooveShredder
+	},
+	theApp : orgArgeeCodeGrooveShredder
 };
 
 /**
@@ -128,10 +147,14 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 /**
  * grooveDownloader
  *
- * Handled most of the download logic exclusively.
+ * Handles most of the download logic exclusively.
  **/
 orgArgeeCodeGrooveShredder.grooveDownloader = 
 {
+	/**
+	 * Initializes the downloader, giving it the postdata and the URL it
+	 * will need in order to be able to access the song.
+	 **/
 	init: function(url, dataString) {
 		this.ios = Components.classes['@mozilla.org/network/io-service;1']
 						.getService(Components.interfaces.nsIIOService);
@@ -142,6 +165,10 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		this.url = 'http://'+url+'/stream.php';
 		this.data = this.theApp.utility.newPostData(dataString);
 	},
+	/**
+	 * Fetches the details of the current song being played and converts
+	 * them into a file name.
+	 **/
 	getFileName: function()
 	{
 		var songBox = this.theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
@@ -150,6 +177,10 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
 		this.parseFileName(song_name, song_artist, song_album);
 	},
+	/**
+	 * Uses the file name preference to create the file name given details
+	 * about the song.
+	 **/
 	parseFileName: function(song_name, song_artist, song_album)
 	{
 		var file_pref = this.theApp.gpreferences.getCharPref(".filename");
@@ -159,6 +190,11 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		this.song_file = this.theApp.utility.replaceTags(file_pref) + ".mp3";
 		return this.song_file;
 	},
+	/**
+	 * Deals with creating the directory where the file is saved as well
+	 * as the file save dialog box. The directory is removed if the dialog
+	 * is canceled.
+	 **/
 	runFilePicker: function()
 	{
 		var automade = false;
@@ -197,6 +233,10 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 			return true;
 		}
 	},
+	/**
+	 * Begins the actual download, as well as attaching it to the download
+	 * manager through a progress listener.
+	 **/
 	saveSong: function()
 	{
 		var dbutton = this.theApp.browser.contentDocument.getElementById("playerDetails_grooveShredder");
@@ -205,6 +245,11 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		this.persist.progressListener = this.xfer; 
 		this.persist.saveURI(this.obj_URI, null, null, this.data, "", this.thefile);	
 	},
+	/**
+	 * This function is the main entry point for this class - it takes
+	 * in the parameters required to handle the download and utilizes sibling
+	 * functions to complete the task.
+	 **/
 	execute: function(url, data, filename)
 	{
 		this.init(url, data);
