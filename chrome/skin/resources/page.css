@@ -44,3 +44,15 @@
 .meta b#playlistName_grooveShredder:hover {
   background-color: #888;
 }
+
+#gs_menu_item:hover {
+	background: none repeat scroll 0 0 #D8EBF8;
+    border-bottom: 1px solid #98CBEE;
+    border-top: 1px solid #98CBEE;
+    color: #276086;
+    padding: 5px 7px;
+}
+
+#gs_menu_item .icon {
+	background: url(chrome://grooveshredder/skin/shark-s.png) no-repeat;
+}

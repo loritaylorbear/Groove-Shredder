@@ -99,6 +99,11 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 				var notificationCallbacks = channel.notificationCallbacks;
 				var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
 				this.theApp.browser = gBrowser.getBrowserForDocument(domWin.top.document);
+				// Attach a DOM change listener to the page
+				this.theApp.browser.addEventListener
+									("DOMNodeInserted",
+									this.theApp.utility.domChanged,
+									false);
 			} else if(channel.URI.spec.match(song_url)){
 				// Simple toggle to prevent two requests for the price of one
 				this.originalSng = this.originalSng? false : true;
@@ -273,6 +278,59 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
  **/
 orgArgeeCodeGrooveShredder.utility = 
 {
+	/**
+	 * When the DOM has changed, this function investigates the changes
+	 * and appends controls accordingly.
+	 **/
+	domChanged: function(event){
+		var theApp = orgArgeeCodeGrooveShredder;
+		if($grooveShredderQuery(event.target).hasClass('jj_menu_item_play_last')){
+			theApp.utility.appendContextButton(event.target);
+		}
+	},
+	/**
+	 * When a selection is right clicked, a "Download Selected" button
+	 * will be appended to the Grooveshark context menu.
+	 **/
+	appendContextButton: function(menuItem){
+		var theApp = orgArgeeCodeGrooveShredder;
+		var downItem = '<div id="gs_menu_item" class="jj_menu_item jj_menu_item_hasIcon">\
+						<span class="icon"></span>\
+						<span class="more"></span>\
+						<span class="jj_menu_item_text" title="Download Selected">\
+						Download Selected\
+						</span></div>';
+		$grooveShredderQuery(menuItem).after(downItem);
+		var element = theApp.browser.contentDocument.getElementById("gs_menu_item");
+		$grooveShredderQuery(element).click(theApp.utility.handleContextButton);
+	},
+	/**
+	 * Uses jQuery to figure out which items are selected as well as song
+	 * details, then initiates downloads.
+	 **/
+	handleContextButton: function(){
+		var theApp = orgArgeeCodeGrooveShredder;
+		if(typeof theApp.streamKeyData === "undefined"){
+			alert("You must play at least one song prior to using this button.");
+			return false;
+		} else {
+			var element = theApp.browser.contentDocument.getElementById("grid");
+			var timer = 0;
+			$grooveShredderQuery(element).find('.selected').each(function(){
+				// Strip out the song's details
+				var songId = $grooveShredderQuery(this).find(".play").attr('rel');
+				var songName = $grooveShredderQuery(this).find(".songLink").html();
+				var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
+				var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
+				var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
+				// Fetch the stream key and execute download
+				setTimeout(function(){
+					theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
+				},timer);
+				timer += 1000;
+			});
+		}
+	},
 	/**
 	 * Perform the functions that must take place before the "Download Song"
 	 * button is actually appended.
