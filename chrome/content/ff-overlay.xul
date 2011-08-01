@@ -4,7 +4,7 @@
 <overlay id="grooveshredder-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script src="jquery.js"/> 
   <script src="toolbar.js"/>
-  <script src="overlay.js"/>
+  <script src="groove-shredder.js"/>
   
   <stringbundleset id="stringbundleset">
     <stringbundle id="grooveshredder-strings" src="chrome://grooveshredder/locale/overlay.properties"/>
