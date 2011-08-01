@@ -98,12 +98,12 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 				// Grooveshark was opened in this tab, remember the tab
 				var notificationCallbacks = channel.notificationCallbacks;
 				var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
-				var browsy = gBrowser.getBrowserForDocument(domWin.top.document);
-				this.theApp.browser = browsy;
+				this.theApp.browser = gBrowser.getBrowserForDocument(domWin.top.document);
 				// Attach a DOM change listener to the page
-				browsy.contentDocument.addEventListener("DOMNodeInserted",
-										 				this.theApp.utility.domChanged,
-										 				false);
+				this.theApp.browser.contentDocument
+								   .addEventListener("DOMNodeInserted",
+										 			 this.theApp.utility.domChanged,
+										 			 false);
 			} else if(channel.URI.spec.match(song_url)){
 				// Simple toggle to prevent two requests for the price of one
 				this.originalSng = this.originalSng? false : true;
@@ -316,19 +316,24 @@ orgArgeeCodeGrooveShredder.utility =
 		} else {
 			var element = theApp.browser.contentDocument.getElementById("grid");
 			var timer = 0;
-			$grooveShredderQuery(element).find('.selected').each(function(){
-				// Strip out the song's details
-				var songId = $grooveShredderQuery(this).find(".play").attr('rel');
-				var songName = $grooveShredderQuery(this).find(".songLink").html();
-				var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
-				var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
-				var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
-				// Fetch the stream key and execute download
-				setTimeout(function(){
-					theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
-				},timer);
-				timer += 1000;
-			});
+			try{
+				$grooveShredderQuery(element).find('.selected').each(function(){
+					// Strip out the song's details
+					var songId = $grooveShredderQuery(this).find(".play").attr('rel');
+					var songName = $grooveShredderQuery(this).find(".songLink").html();
+					var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
+					var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
+					var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
+					// Fetch the stream key and execute download
+					setTimeout(function(){
+						theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
+					},timer);
+					timer += 1000;
+				});
+			}
+			catch(err){
+				alert("Token expired. Please play another song.");
+			}
 		}
 	},
 	/**
@@ -413,19 +418,24 @@ orgArgeeCodeGrooveShredder.utility =
 					}
 					// Use a timer to download incrementally
 					var timer = 0;
-					songArray.result.Songs.forEach(function(songObject){
-							// Strip out the song's details
-							var songId = songObject.SongID;
-							var songName = songObject.Name;
-							var songAlbum = songObject.AlbumName;
-							var songArtist = songObject.ArtistName;
-							var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
-							// Fetch the stream key and execute download
-							setTimeout(function(){
-								theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
-							},timer);
-							timer += 1000;
-					});
+					try{
+						songArray.result.Songs.forEach(function(songObject){
+								// Strip out the song's details
+								var songId = songObject.SongID;
+								var songName = songObject.Name;
+								var songAlbum = songObject.AlbumName;
+								var songArtist = songObject.ArtistName;
+								var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
+								// Fetch the stream key and execute download
+								setTimeout(function(){
+									theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
+								},timer);
+								timer += 1000;
+						});
+					}
+					catch(err){
+						alert("Token expired. Please play another song.");
+					}
 				});
 			}
 		});
