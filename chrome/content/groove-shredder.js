@@ -84,21 +84,30 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 	{
 		if(typeof(Components) !== 'undefined'){
 			// This URL indicates that a new connection is being established
-			var token_url = /https?:\/\/grooveshark.com\/more.php\?getCommunicationToken$/;
+			var token_url = /^https?:\/\/grooveshark\.com\/more\.php\?getCommunicationToken$/;
 			// A URL of this format indicates that a song is being played
-			var song_url = /http:\/\/grooveshark.com\/more.php\?getStreamKeyFromSongIDEx$/;
+			var song_url = /^http:\/\/grooveshark\.com\/more\.php\?getStreamKeyFromSongIDEx$/;
 			// A URL of this format indicates that a playlist is being loaded
-			var list_url = /http:\/\/grooveshark.com\/more.php\?playlistGetSongs$/;
+			var list_url = /^http:\/\/grooveshark\.com\/more\.php\?playlistGetSongs$/;
 
 			// Obtain the HTTP channel from the observed subject
 			var channel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
 
 			// Perform the actions appropriate to the event
 			if(channel.URI.spec.match(token_url)){
+				// Simple toggle to prevent two requests for the price of one
+				this.originalTkn = this.originalTkn? false : true;
+				if(this.originalTkn)
+					// If we already have a Grooveshark tab, alert user
+					if(typeof this.theApp.browser !== "undefined")
+						alert("Groove Shredder will no longer work with " +
+							  "the older Grooveshark tab.");
 				// Grooveshark was opened in this tab, remember the tab
 				var notificationCallbacks = channel.notificationCallbacks;
 				var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
 				this.theApp.browser = gBrowser.getBrowserForDocument(domWin.top.document);
+				// Kill old stream key data
+				delete this.theApp.streamKeyData;
 				// Attach a DOM change listener to the page
 				this.theApp.browser.contentDocument
 								   .addEventListener("DOMNodeInserted",
@@ -313,28 +322,29 @@ orgArgeeCodeGrooveShredder.utility =
 		if(typeof theApp.streamKeyData === "undefined"){
 			alert("You must play at least one song prior to using this button.");
 			return false;
-		} else {
-			var element = theApp.browser.contentDocument.getElementById("grid");
-			var timer = 0;
-			try{
-				$grooveShredderQuery(element).find('.selected').each(function(){
-					// Strip out the song's details
-					var songId = $grooveShredderQuery(this).find(".play").attr('rel');
-					var songName = $grooveShredderQuery(this).find(".songLink").html();
-					var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
-					var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
-					var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
-					// Fetch the stream key and execute download
-					setTimeout(function(){
-						theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
-					},timer);
-					timer += 1000;
-				});
-			}
-			catch(err){
-				alert("Token expired. Please play another song.");
-			}
+		} else if(!theApp.gpreferences.getBoolPref(".nodupeprompt")
+					|| !theApp.gpreferences.getBoolPref(".nodialog")){
+			// Warn the user, too many dialogs spell disaster
+			if(!confirm('It is HIGHLY recommended to turn off duplicate file prompts,\r\n' +
+						'as well as skipping the file select dialog.\r\n' +
+						'Do you still want to Continue?')) return false;
 		}
+		var element = theApp.browser.contentDocument.getElementById("grid");
+		// Use a timer to download incrementally
+		var timer = 0;
+		$grooveShredderQuery(element).find('.selected').each(function(){
+			// Strip out the song's details
+			var songId = $grooveShredderQuery(this).find(".play").attr('rel');
+			var songName = $grooveShredderQuery(this).find(".songLink").html();
+			var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
+			var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
+			var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
+			// Fetch the stream key and execute download
+			setTimeout(function(){
+				theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
+			},timer);
+			timer += 1000;
+		});
 	},
 	/**
 	 * Perform the functions that must take place before the "Download Song"
@@ -418,24 +428,19 @@ orgArgeeCodeGrooveShredder.utility =
 					}
 					// Use a timer to download incrementally
 					var timer = 0;
-					try{
-						songArray.result.Songs.forEach(function(songObject){
-								// Strip out the song's details
-								var songId = songObject.SongID;
-								var songName = songObject.Name;
-								var songAlbum = songObject.AlbumName;
-								var songArtist = songObject.ArtistName;
-								var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
-								// Fetch the stream key and execute download
-								setTimeout(function(){
-									theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
-								},timer);
-								timer += 1000;
-						});
-					}
-					catch(err){
-						alert("Token expired. Please play another song.");
-					}
+					songArray.result.Songs.forEach(function(songObject){
+							// Strip out the song's details
+							var songId = songObject.SongID;
+							var songName = songObject.Name;
+							var songAlbum = songObject.AlbumName;
+							var songArtist = songObject.ArtistName;
+							var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
+							// Fetch the stream key and execute download
+							setTimeout(function(){
+								theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
+							},timer);
+							timer += 1000;
+					});
 				});
 			}
 		});

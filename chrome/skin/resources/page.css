@@ -18,6 +18,7 @@
 #playerDetails_nowPlaying #playerDetails_grooveShredder,
 .meta b#playlistName_grooveShredder 
 {
+  position: relative;
   cursor:pointer;
   color: #fff;
   font-weight: normal;
