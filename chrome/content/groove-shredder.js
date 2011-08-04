@@ -340,7 +340,7 @@ orgArgeeCodeGrooveShredder.utility =
 		var element = theApp.browser.contentDocument.getElementById("grid");
 		// Use a timer to download incrementally
 		var timer = 0;
-		$grooveShredderQuery(element).find('.selected').each(function(){
+		$grooveShredderQuery(element).find('.slick-row.selected').each(function(){
 			theApp.utility.preMultiButton(this, timer);
 			timer += 1000;
 		});
@@ -364,7 +364,7 @@ orgArgeeCodeGrooveShredder.utility =
 		var element = theApp.browser.contentDocument.getElementById("grid");
 		// Use a timer to download incrementally
 		var timer = 0;
-		$grooveShredderQuery(element).find('.slick_row').each(function(){
+		$grooveShredderQuery(element).find('.slick-row').each(function(){
 			theApp.utility.preMultiButton(this, timer);
 			timer += 1000;
 		});
