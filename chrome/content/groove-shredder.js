@@ -314,7 +314,7 @@ orgArgeeCodeGrooveShredder.utility =
 	appendListButton: function(pageHeader){
 		var theApp = orgArgeeCodeGrooveShredder;
 		$grooveShredderQuery(pageHeader)
-			.find('.name')	
+			.find('h3')	
 				.after('<b id="playlistName_grooveShredder"> \
 						Download All</b>');
 		$grooveShredderQuery(pageHeader)
@@ -538,6 +538,7 @@ orgArgeeCodeGrooveShredder.utility =
 				if(subdir == null) {
 					subdir = $grooveShredderQuery(playDetails).find('h3').html();
 					subdir = subdir.replace(/<span .*>[a-zA-Z]+<\/span>:/gi,"Search -");
+					subdir = subdir.replace(/<[^>]+>/g,"");
 				}
 				if(subdir != null) {
 					// Sanitize and append
