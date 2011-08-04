@@ -112,10 +112,8 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 										 			 this.theApp.utility.domChanged,
 										 			 false);
 			} else if(channel.URI.spec.match(song_url)){
-				// Simple toggle to prevent two requests for the price of one
-				this.originalSng = this.originalSng? false : true;
 				// Create the "Download Song" button using the posted data
-				if(this.originalSng) this.theApp.utility.preSongButton(this.theApp.utility.getPostData(subject));
+				this.theApp.utility.preSongButton(this.theApp.utility.getPostData(subject));
 			} else {
 				// If no special URL matched, we check for any Grooveshark
 				// related request and add the options link
@@ -538,7 +536,8 @@ orgArgeeCodeGrooveShredder.utility =
 			var subdir = $grooveShredderQuery(playDetails).find('.name').html();
 			if(typeof(subdir) !== undefined){
 				if(subdir == null) {
-					subdir = $grooveShredderQuery(playDetails).find('span').html();
+					subdir = $grooveShredderQuery(playDetails).find('h3').html();
+					subdir = subdir.replace(/<span .*>[a-zA-Z]+<\/span>:/gi,"Search -");
 				}
 				if(subdir != null) {
 					// Sanitize and append
