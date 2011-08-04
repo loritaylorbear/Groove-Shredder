@@ -87,8 +87,6 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 			var token_url = /^https?:\/\/grooveshark\.com\/more\.php\?getCommunicationToken$/;
 			// A URL of this format indicates that a song is being played
 			var song_url = /^http:\/\/grooveshark\.com\/more\.php\?getStreamKeyFromSongIDEx$/;
-			// A URL of this format indicates that a playlist is being loaded
-			var list_url = /^http:\/\/grooveshark\.com\/more\.php\?playlistGetSongs$/;
 
 			// Obtain the HTTP channel from the observed subject
 			var channel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
@@ -118,11 +116,6 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 				this.originalSng = this.originalSng? false : true;
 				// Create the "Download Song" button using the posted data
 				if(this.originalSng) this.theApp.utility.preSongButton(this.theApp.utility.getPostData(subject));
-			} else if(channel.URI.spec.match(list_url)){
-				// Simple toggle to prevent two requests for the price of one
-				this.originalLst = this.originalLst? false : true;
-				// Create the "Download Playlist" button using the posted data
-				if(this.originalLst) this.theApp.utility.addListButton(this.theApp.utility.getPostData(subject));
 			} else {
 				// If no special URL matched, we check for any Grooveshark
 				// related request and add the options link
@@ -295,6 +288,9 @@ orgArgeeCodeGrooveShredder.utility =
 		var theApp = orgArgeeCodeGrooveShredder;
 		if($grooveShredderQuery(event.target).hasClass('jj_menu_item_play_last')){
 			theApp.utility.appendContextButton(event.target);
+		} else if($grooveShredderQuery(event.target)
+					.attr('id') == "page_header"){
+			theApp.utility.appendListButton(event.target);
 		}
 	},
 	/**
@@ -314,10 +310,24 @@ orgArgeeCodeGrooveShredder.utility =
 		$grooveShredderQuery(element).click(theApp.utility.handleContextButton);
 	},
 	/**
+	 * Create the "Download Playlist" button and append it to the page.
+	 * This function also attaches a listener to the sidebar for persistence.
+	 **/
+	appendListButton: function(pageHeader){
+		var theApp = orgArgeeCodeGrooveShredder;
+		$grooveShredderQuery(pageHeader)
+			.find('.name')	
+				.after('<b id="playlistName_grooveShredder"> \
+						Download All</b>');
+		$grooveShredderQuery(pageHeader)
+			.find('#playlistName_grooveShredder')
+				.click(theApp.utility.handleListButton);
+	},
+	/**
 	 * Uses jQuery to figure out which items are selected as well as song
 	 * details, then initiates downloads.
 	 **/
-	handleContextButton: function(){
+	handleContextButton: function(event){
 		var theApp = orgArgeeCodeGrooveShredder;
 		if(typeof theApp.streamKeyData === "undefined"){
 			alert("You must play at least one song prior to using this button.");
@@ -333,18 +343,55 @@ orgArgeeCodeGrooveShredder.utility =
 		// Use a timer to download incrementally
 		var timer = 0;
 		$grooveShredderQuery(element).find('.selected').each(function(){
-			// Strip out the song's details
-			var songId = $grooveShredderQuery(this).find(".play").attr('rel');
-			var songName = $grooveShredderQuery(this).find(".songLink").html();
-			var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
-			var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
-			var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
-			// Fetch the stream key and execute download
-			setTimeout(function(){
-				theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
-			},timer);
+			theApp.utility.preMultiButton(this, timer);
 			timer += 1000;
 		});
+	},
+	/**
+	 * Uses jQuery to find all items in the current list, then initiates
+	 * downloads.
+	 **/
+	handleListButton: function(event){
+		var theApp = orgArgeeCodeGrooveShredder;
+		if(typeof theApp.streamKeyData === "undefined"){
+			alert("You must play at least one song prior to using this button.");
+			return false;
+		} else if(!theApp.gpreferences.getBoolPref(".nodupeprompt")
+					|| !theApp.gpreferences.getBoolPref(".nodialog")){
+			// Warn the user, too many dialogs spell disaster
+			if(!confirm('It is HIGHLY recommended to turn off duplicate file prompts,\r\n' +
+						'as well as skipping the file select dialog.\r\n' +
+						'Do you still want to Continue?')) return false;
+		}
+		var element = theApp.browser.contentDocument.getElementById("grid");
+		// Use a timer to download incrementally
+		var timer = 0;
+		$grooveShredderQuery(element).find('.slick_row').each(function(){
+			theApp.utility.preMultiButton(this, timer);
+			timer += 1000;
+		});
+	},
+	/**
+	 * Handles fetching the file name and executing download.
+	 **/
+	preMultiButton: function(element, timer){
+		var theApp = orgArgeeCodeGrooveShredder;
+		// Strip out the song's details
+		var songId = $grooveShredderQuery(element).find(".play").attr('rel');
+		var songName = $grooveShredderQuery(element).find(".songLink").html();
+		var songAlbum = $grooveShredderQuery(element).find(".album > a").html();
+		var songArtist = $grooveShredderQuery(element).find(".artist > a").html();
+		var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
+		// Fetch the stream key and execute download
+		setTimeout(function(){
+			theApp.utility.getStreamKey(songId, theApp.utility.runMultiButton, songFile, 0);
+		},timer);
+	},
+	/**
+	 * This function must exist as a workaround for scope.
+	 **/
+	runMultiButton: function(url, key, filename){
+		orgArgeeCodeGrooveShredder.grooveDownloader.execute(url, key, filename);
 	},
 	/**
 	 * Perform the functions that must take place before the "Download Song"
@@ -383,73 +430,6 @@ orgArgeeCodeGrooveShredder.utility =
 				}
 			}
 		}
-	},
-	/**
-	 * Create the "Download Playlist" button and append it to the page.
-	 * This function also attaches a listener to the sidebar for persistence.
-	 **/
-	addListButton: function(postdata){
-		var theApp = orgArgeeCodeGrooveShredder;
-		$grooveShredderQuery.ajax({
-			url: 'http://grooveshark.com/more.php?playlistGetSongs=',
-			type: 'POST',
-			data: postdata,
-			dataType: 'text',
-			contentType: 'application/json',
-			success: function(result) {
-				// First, attach the sidebar listener
-				// Get the playlist's ID
-				var post = $grooveShredderQuery.parseJSON(postdata);
-				var p_id = post.parameters.playlistID;
-				// Get the playlist's sidebar button
-				var p_btn = theApp.browser.contentDocument.getElementById("sidebar_playlist_" + p_id);
-				// Attach the listener
-				$grooveShredderQuery(p_btn).click(function(){
-					theApp.utility.addListButton(postdata);
-				});
-				// Second, instantiate the actual button
-				// Parse an array of songs from the JSON
-				var songArray = $grooveShredderQuery.parseJSON(result);
-				// Add a button next to the playlist name
-				var element = theApp.browser.contentDocument.getElementById("page_header");
-				$grooveShredderQuery(element).find('.meta').children('b').remove();
-				$grooveShredderQuery(element).find('.name').after('<b id="playlistName_grooveShredder"> \
-																Download Playlist</b>');
-				$grooveShredderQuery(element).find('.meta').children('b').click(function(){
-					if(typeof theApp.streamKeyData === "undefined"){
-						alert("You must play at least one song prior to using this button.");
-						return false;
-					} else if(!theApp.gpreferences.getBoolPref(".nodupeprompt")
-								|| !theApp.gpreferences.getBoolPref(".nodialog")){
-						// Warn the user, too many dialogs spell disaster
-						if(!confirm('It is HIGHLY recommended to turn off duplicate file prompts,\r\n' +
-									'as well as skipping the file select dialog.\r\n' +
-									'Do you still want to Continue?')) return false;
-					}
-					// Use a timer to download incrementally
-					var timer = 0;
-					songArray.result.Songs.forEach(function(songObject){
-							// Strip out the song's details
-							var songId = songObject.SongID;
-							var songName = songObject.Name;
-							var songAlbum = songObject.AlbumName;
-							var songArtist = songObject.ArtistName;
-							var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
-							// Fetch the stream key and execute download
-							setTimeout(function(){
-								theApp.utility.getStreamKey(songId, theApp.utility.runListButton, songFile, 0);
-							},timer);
-							timer += 1000;
-					});
-				});
-			}
-		});
-	},
-	/**
-	 * This function must exist as a workaround for scope.
-	 **/
-	runListButton: function(url, key, filename){
-		orgArgeeCodeGrooveShredder.grooveDownloader.execute(url, key, filename);
 	},
 	/**
 	 * Create the 'options' link and append it to the page.
