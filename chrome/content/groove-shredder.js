@@ -16,16 +16,16 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 	* This runs every time Firefox starts.
 	**/
 	onLoad: function() {
-		// Register the observer.
-		this.theApp.grooveRequestObserver.register();
 		// Check whether Groove Shredder is enabled.
 		if(this.theApp.gpreferences.prefHasUserValue("enabled")){
 			if(this.theApp.gpreferences.getBoolPref("enabled")){
 				// Register observer.
 				this.setEnabled();
 			} else {
-				// Unregister observer.
-				this.setDisabled();
+				// No observer was ever added, style button.
+				var btn = document.getElementById("grooveshredder-toolbar-button");
+				if(btn !== null)
+					btn.setAttribute("class","grooveshredder-tbutton-off toolbarbutton-1 chromeclass-toolbar-additional");
 			}
 		} else {
 			// If the preference is blank, enable.
