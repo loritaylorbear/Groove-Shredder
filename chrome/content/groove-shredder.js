@@ -121,7 +121,7 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 										 			 false);
 			} else if(channel.URI.spec.match(song_url)){
 				// Create the "Download Song" button using the posted data
-				this.theApp.utility.preSongButton(this.theApp.utility.getPostData(subject));
+				this.theApp.utility.addSongButton(this.theApp.utility.getPostData(subject));
 			} else {
 				// If no special URL matched, we check for any Grooveshark
 				// related request and add the options link
@@ -187,7 +187,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	runFilePicker: function()
 	{
 		var automade = false;
-		var directory = this.theApp.utility.getDirectory();
+		var directory = this.theApp.fileUtilities.getDirectory();
 		if(!directory.exists()){
 			directory.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0777);
 			automade = true;
@@ -237,9 +237,9 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	/**
 	 * Adds a particular song download to the queue.
 	 **/
-	addDownload: function(url, key, filename)
+	addDownload: function(song_id, filename, times)
 	{
-		orgArgeeCodeGrooveShredder.toBeDownloaded.push([url, key, filename]);
+		orgArgeeCodeGrooveShredder.toBeDownloaded.push([song_id, filename, times]);
 		orgArgeeCodeGrooveShredder.grooveDownloader.runDownloads();
 	},
 	/**
@@ -251,9 +251,33 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		while(this.theApp.toBeDownloaded.length > 0
 			  && this.theApp.beingDownloaded < 5){
 			var item = this.theApp.toBeDownloaded.shift();
-			this.execute(item[0], item[1], item[2]);
+			this.getStreamKeyAndSave(item[0], item[1], item[2]);
 			this.theApp.beingDownloaded++;
 		}
+	},
+	/**
+	 * Given a song ID, get a stream key from Grooveshark.
+	 **/
+	getStreamKeyAndSave: function(song_id, filename, times){
+		var theApp = orgArgeeCodeGrooveShredder;
+		var postdata = theApp.streamKeyData;
+		if(song_id != 0) postdata = postdata.replace(/"songID":[0-9]+/g,
+													 '"songID":'+song_id);
+		var staleKey = $grooveShredderQuery.parseJSON(theApp.streamKeyData);
+		$grooveShredderQuery.ajax({
+			url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
+			type: 'POST',
+			data: postdata,
+			dataType: 'text',
+			contentType: 'application/json',
+			success: function(result) {
+				result = $grooveShredderQuery.parseJSON(result);
+				if(times == 0)
+					theApp.grooveDownloader.execute(result.result.ip, result.result.streamKey, filename);
+				else
+					theApp.grooveDownloader.getStreamKeyAndSave(song_id, filename, times-1);
+			}
+		});
 	},
 	/**
 	 * This function is the main entry point for this class - it takes
@@ -293,7 +317,7 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 		var song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
 		var song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
 		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
-		theApp.fileUtilities.parseFileName(song_name, song_artist, song_album);
+		return theApp.fileUtilities.parseFileName(song_name, song_artist, song_album);
 	},
 	/**
 	 * Uses the file name preference to create the file name given details
@@ -306,8 +330,64 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 		theApp.song_name = song_name;
 		theApp.song_artist = song_artist;
 		theApp.song_album = song_album;
-		var song_file = theApp.utility.replaceTags(file_pref) + ".mp3";
+		var song_file = theApp.fileUtilities.replaceTags(file_pref) + ".mp3";
 		return song_file;
+	},
+	/**
+	 * Replace tags %artist%, %title% and %album% with values, as well as
+	 * sanitizing the file or directory name.
+	 **/
+	replaceTags: function(original){
+		var theApp = orgArgeeCodeGrooveShredder;
+		return original.replace("%artist%", theApp.song_artist)
+							.replace("%title%", theApp.song_name)
+								.replace("%album%", theApp.song_album)
+									.replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
+	},
+	/**
+	 * Return the final directory based on set preferences.
+	 **/
+	getDirectory: function(){
+		var theApp = orgArgeeCodeGrooveShredder;
+		var directory;
+		Components.utils.import("resource://gre/modules/FileUtils.jsm");
+		if(!theApp.gpreferences.prefHasUserValue('.downloc')){
+			directory = FileUtils.getDir("Desk", []);
+		} else {
+			var dir = Components.classes["@mozilla.org/file/local;1"].
+					createInstance(Components.interfaces.nsILocalFile);
+			dir.initWithPath(theApp.gpreferences.getCharPref('.downloc'));
+			directory = dir;
+		}
+		
+		if(theApp.gpreferences.getBoolPref('.playdir')){
+			var playDetails = theApp.browser.contentDocument.getElementById("page_header");
+			var subdir = $grooveShredderQuery(playDetails).find('.name').html();
+			if(typeof(subdir) !== undefined){
+				if(subdir == null) {
+					subdir = $grooveShredderQuery(playDetails).find('h3').html();
+					subdir = subdir.replace(/<span .*>[a-zA-Z]+<\/span>:/gi,"Search -");
+					subdir = subdir.replace(/<[^>]+>/g,"");
+				}
+				if(subdir != null) {
+					// Sanitize and append
+					subdir = subdir.replace(/^\s+|\s+$/g,"").replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
+					directory.appendRelativePath(subdir);
+				}
+			}
+		} else if(theApp.gpreferences.prefHasUserValue('.downdir')){
+			var dir_pref = theApp.gpreferences.getCharPref(".downdir");
+			var subdir = theApp.fileUtilities.replaceTags(dir_pref);
+			directory.appendRelativePath(subdir);
+		}
+		
+		// Deal with second sub-directory option
+		if(theApp.gpreferences.prefHasUserValue('.subdowndir')){
+			var dir_pref = theApp.gpreferences.getCharPref(".subdowndir");
+			var subdir = theApp.fileUtilities.replaceTags(dir_pref);
+			directory.appendRelativePath(subdir);
+		}	
+		return directory;
 	}
 }
  
@@ -351,11 +431,12 @@ orgArgeeCodeGrooveShredder.utility =
 					.hasClass('jj_menu_item_play_last')){
 			theApp.utility.appendContextButton(event.target);
 		} else if($grooveShredderQuery(event.target)
-					.attr('id') == "page_header"){
-			theApp.utility.appendListButton(event.target);
-		} else if($grooveShredderQuery(event.target)
 					.hasClass('slick-row')){
-			theApp.utility.appendSongItem(event.target);		
+			theApp.utility.appendSongItem(event.target);
+			$grooveShredderQuery(event.target).click(function(){
+				// If this item is selected or deselected, re-append
+				theApp.utility.appendSongItem(this);
+			});
 		}
 	},
 	/**
@@ -396,39 +477,9 @@ orgArgeeCodeGrooveShredder.utility =
 		$grooveShredderQuery(element).click(theApp.utility.handleContextButton);
 	},
 	/**
-	 * Create the "Download Playlist" button and append it to the page.
-	 * This function also attaches a listener to the sidebar for persistence.
-	 **/
-	appendListButton: function(pageHeader){
-		var theApp = orgArgeeCodeGrooveShredder;
-		$grooveShredderQuery(pageHeader)
-			.find('h3')	
-				.after('<b id="playlistName_grooveShredder"> \
-						Download All</b>');
-		$grooveShredderQuery(pageHeader)
-			.find('#playlistName_grooveShredder')
-				.click(theApp.utility.handleListButton);
-	},
-	/**
-	 * Uses jQuery to figure out which items are selected as well as song
-	 * details, then initiates downloads.
-	 **/
-	handleContextButton: function(event){
-		var theApp = orgArgeeCodeGrooveShredder;
-		theApp.utility.preMultiButton("context");
-	},
-	/**
-	 * Uses jQuery to find all items in the current list, then initiates
-	 * downloads.
-	 **/
-	handleListButton: function(event){
-		var theApp = orgArgeeCodeGrooveShredder;
-		theApp.utility.preMultiButton("list");
-	},
-	/**
 	 * Handles fetching the file name and executing download.
 	 **/
-	preMultiButton: function(buttonType){
+	handleContextButton: function(){
 		var theApp = orgArgeeCodeGrooveShredder;
 		if(typeof theApp.streamKeyData === "undefined"){
 			alert("You must play at least one song prior to using this button.");
@@ -441,42 +492,10 @@ orgArgeeCodeGrooveShredder.utility =
 						'Do you still want to Continue?')) return false;
 		}
 		var element = theApp.browser.contentDocument.getElementById("grid");
-		// Is this playlist short or long?
-		var $viewPort = $grooveShredderQuery(element).find('.slick-viewport');
-		var scrlHeight = $viewPort.attr('scrollHeight');
-		var clntHeight = $viewPort.attr('clientHeight');
-		// Clear out our temporary song storage
-		$grooveShredderQuery(element).find('.slick-header-secondary').html("");
-		// Scroll through the list so that temp. storage is populated
-		$grooveShredderQuery(element)
-			.find('.slick-viewport')
-			.animate({scrollTop: 5000},
-					 10000,
-					 "linear",
-					 function(){
-						var limiter = false;
-						$grooveShredderQuery(this)
-							.animate({scrollTop: 0},
-									 10000,
-									 "linear",
-									 function(){
-										if(!limiter){
-											theApp.utility.postMultiButton(buttonType);
-											this.limiter = true;
-										}
-									 });
-					 });
-	},
-	postMultiButton: function(buttonType){
 		var timer = 0;
-		var tempArray;
 		var theApp = orgArgeeCodeGrooveShredder;
 		var element = theApp.browser.contentDocument.getElementById("grid");
-		if(buttonType == "list"){
-			tempArray = $grooveShredderQuery(element).find('.groovy-row');
-		} else {
-			tempArray = $grooveShredderQuery(element).find('.groovy-row.selected');
-		}
+		var tempArray = $grooveShredderQuery(element).find('.groovy-row.selected');
 		$grooveShredderQuery(tempArray).each(function(){
 			// Strip out the song's details
 			var songId = $grooveShredderQuery(this).find(".play").attr('rel');
@@ -487,46 +506,34 @@ orgArgeeCodeGrooveShredder.utility =
 
 			// Fetch the stream key and execute download
 			setTimeout(function(){
-				theApp.utility.getStreamKey(songId, theApp.grooveDownloader.addDownload, songFile, 0);
+				theApp.grooveDownloader.addDownload(songId, songFile, 0);
 			},timer);
 			timer += 1000;
 		});
 	},
 	/**
-	 * Perform the functions that must take place before the "Download Song"
-	 * button is actually appended.
-	 **/
-	preSongButton: function(postdata){
-		var theApp = orgArgeeCodeGrooveShredder;
-		// Store the POST data for re-use
-		theApp.streamKeyData = postdata;
-		// Call getStreamKey multiple times to ensure fresh key
-		theApp.utility.getStreamKey(0, theApp.utility.addSongButton, true, 5);
-	},
-	/**
 	 * Add the "Download Song" button, and initiate the download if user
 	 * preferences allow.
 	 **/
-	addSongButton: function(stream_url, stream_key, last_call){
+	addSongButton: function(postdata){
 		var theApp = orgArgeeCodeGrooveShredder;
-		if(last_call){
-			var element;	
-			// Add a button to grooveshark
-			element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
-			$grooveShredderQuery(element).children('b').remove();
-			$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder"> \
-													Download Song</b>');
-			$grooveShredderQuery(element).children('b').click(function(){
-				theApp.grooveDownloader.execute(stream_url, stream_key, "");
-			});
-			// Autodownload if preferred
-			if(theApp.gpreferences.getBoolPref(".autoget") && last_call){
-				// Download the song automagically
-				theApp.grooveDownloader.execute(stream_url, stream_key, "");
-				// Skip to next song if preferred
-				if(theApp.gpreferences.getBoolPref(".autonext")){
-					theApp.browser.contentDocument.getElementById("player_next").click();
-				}
+		// Store the POST data for re-use
+		theApp.streamKeyData = postdata;
+		// Add a button to grooveshark
+		var element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
+		$grooveShredderQuery(element).children('b').remove();
+		$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder"> \
+												Download Song</b>');
+		$grooveShredderQuery(element).children('b').click(function(){
+			theApp.grooveDownloader.getStreamKeyAndSave(0, "", 5);
+		});
+		// Autodownload if preferred
+		if(theApp.gpreferences.getBoolPref(".autoget")){
+			// Download the song automagically
+			theApp.grooveDownloader.getStreamKeyAndSave(0, "", 5);
+			// Skip to next song if preferred
+			if(theApp.gpreferences.getBoolPref(".autonext")){
+				theApp.browser.contentDocument.getElementById("player_next").click();
 			}
 		}
 	},
@@ -549,29 +556,6 @@ orgArgeeCodeGrooveShredder.utility =
 								"Groove Shredder preferences", "chrome, centerscreen");
 			});
 		}
-	},
-	/**
-	 * Given a song ID, get a stream key from Grooveshark.
-	 **/
-	getStreamKey: function(song_id, callback, params, times){
-		var theApp = orgArgeeCodeGrooveShredder;
-		var postdata = theApp.streamKeyData;
-		if(song_id != 0) postdata = postdata.replace(/"songID":[0-9]+/g,
-													 '"songID":'+song_id);
-		$grooveShredderQuery.ajax({
-			url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
-			type: 'POST',
-			data: postdata,
-			dataType: 'text',
-			contentType: 'application/json',
-			success: function(result) {
-				result = $grooveShredderQuery.parseJSON(result);
-				if(times == 0)
-					callback(result.result.ip, result.result.streamKey, params);
-				else
-					theApp.utility.getStreamKey(song_id, callback, params, times-1);
-			}
-		});
 	},
 	/**
 	 * Extract the plaintext POST data from a given subject.
@@ -606,61 +590,6 @@ orgArgeeCodeGrooveShredder.utility =
 		postData.addContentLength = true;
 		postData.setData(stringStream);
 		return postData;
-	},
-	/**
-	 * Replace tags %artist%, %title% and %album% with values, as well as
-	 * sanitizing the file or directory name.
-	 **/
-	replaceTags: function(original){
-		return original.replace("%artist%", this.theApp.song_artist)
-							.replace("%title%", this.theApp.song_name)
-								.replace("%album%", this.theApp.song_album)
-									.replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
-	},
-	/**
-	 * Return the final directory based on set preferences.
-	 **/
-	getDirectory: function(){
-		var directory;
-		Components.utils.import("resource://gre/modules/FileUtils.jsm");
-		if(!this.theApp.gpreferences.prefHasUserValue('.downloc')){
-			directory = FileUtils.getDir("Desk", []);
-		} else {
-			var dir = Components.classes["@mozilla.org/file/local;1"].
-					createInstance(Components.interfaces.nsILocalFile);
-			dir.initWithPath(this.theApp.gpreferences.getCharPref('.downloc'));
-			directory = dir;
-		}
-		
-		if(this.theApp.gpreferences.getBoolPref('.playdir')){
-			var playDetails = this.theApp.browser.contentDocument.getElementById("page_header");
-			var subdir = $grooveShredderQuery(playDetails).find('.name').html();
-			if(typeof(subdir) !== undefined){
-				if(subdir == null) {
-					subdir = $grooveShredderQuery(playDetails).find('h3').html();
-					subdir = subdir.replace(/<span .*>[a-zA-Z]+<\/span>:/gi,"Search -");
-					subdir = subdir.replace(/<[^>]+>/g,"");
-				}
-				if(subdir != null) {
-					// Sanitize and append
-					subdir = subdir.replace(/^\s+|\s+$/g,"").replace(/[\#%&\*:<>\?\/\\\{\|\}\.]/g,"");
-					directory.appendRelativePath(subdir);
-				}
-			}
-		} else if(this.theApp.gpreferences.prefHasUserValue('.downdir')){
-			var dir_pref = this.theApp.gpreferences.getCharPref(".downdir");
-			var subdir = this.theApp.utility.replaceTags(dir_pref);
-			directory.appendRelativePath(subdir);
-		}
-		
-		// Deal with second sub-directory option
-		if(this.theApp.gpreferences.prefHasUserValue('.subdowndir')){
-			var dir_pref = this.theApp.gpreferences.getCharPref(".subdowndir");
-			var subdir = this.theApp.utility.replaceTags(dir_pref);
-			directory.appendRelativePath(subdir);
-		}
-		
-		return directory;
 	},
 	theApp : orgArgeeCodeGrooveShredder
 }
