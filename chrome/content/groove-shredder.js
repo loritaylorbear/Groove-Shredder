@@ -180,31 +180,6 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		this.data = this.theApp.utility.newPostData(dataString);
 	},
 	/**
-	 * Fetches the details of the current song being played and converts
-	 * them into a file name.
-	 **/
-	getFileName: function()
-	{
-		var songBox = this.theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
-		var song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
-		var song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
-		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
-		this.parseFileName(song_name, song_artist, song_album);
-	},
-	/**
-	 * Uses the file name preference to create the file name given details
-	 * about the song.
-	 **/
-	parseFileName: function(song_name, song_artist, song_album)
-	{
-		var file_pref = this.theApp.gpreferences.getCharPref(".filename");
-		this.theApp.song_name = song_name;
-		this.theApp.song_artist = song_artist;
-		this.theApp.song_album = song_album;
-		this.song_file = this.theApp.utility.replaceTags(file_pref) + ".mp3";
-		return this.song_file;
-	},
-	/**
 	 * Deals with creating the directory where the file is saved as well
 	 * as the file save dialog box. The directory is removed if the dialog
 	 * is canceled.
@@ -289,7 +264,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	{
 		this.init(url, data);
 		if(filename.length == 0){
-			this.getFileName();
+			this.song_file = this.theApp.fileUtilities.getFileName();
 		} else {
 			this.song_file = filename;
 		}
@@ -508,7 +483,7 @@ orgArgeeCodeGrooveShredder.utility =
 			var songName = $grooveShredderQuery(this).find(".songLink").html();
 			var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
 			var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
-			var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
+			var songFile = theApp.fileUtilities.parseFileName(songName, songArtist, songAlbum);
 
 			// Fetch the stream key and execute download
 			setTimeout(function(){
