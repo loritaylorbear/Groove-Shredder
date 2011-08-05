@@ -16,6 +16,14 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 	* This runs every time Firefox starts.
 	**/
 	onLoad: function() {
+		// Set up an empty download queue.
+		this.theApp.toBeDownloaded = new Array();
+		// Number of songs being downloaded.
+		this.theApp.beingDownloaded = 0;
+		// Attach our download listener.
+		var download_manager = Components.classes["@mozilla.org/download-manager;1"]
+										 .getService(Components.interfaces.nsIDownloadManager);
+		download_manager.addListener(this.theApp.grooveQueueListener);
 		// Check whether Groove Shredder is enabled.
 		if(this.theApp.gpreferences.prefHasUserValue("enabled")){
 			if(this.theApp.gpreferences.getBoolPref("enabled")){
@@ -165,7 +173,8 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 						.getService(Components.interfaces.nsIIOService);
 		this.persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
                         .createInstance(Components.interfaces.nsIWebBrowserPersist);
-		this.xfer = Components.classes["@mozilla.org/transfer;1"].createInstance(Components.interfaces.nsITransfer);
+		this.xfer = Components.classes["@mozilla.org/transfer;1"]
+						.createInstance(Components.interfaces.nsITransfer);
 		
 		this.url = 'http://'+url+'/stream.php';
 		this.data = this.theApp.utility.newPostData(dataString);
@@ -247,8 +256,29 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		var dbutton = this.theApp.browser.contentDocument.getElementById("playerDetails_grooveShredder");
 		$grooveShredderQuery(dbutton).fadeTo("slow",0.25).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
 		this.xfer.init(this.obj_URI, this.file_URI, "", null, null, null, this.persist);
-		this.persist.progressListener = this.xfer; 
+		this.persist.progressListener = this.xfer;
 		this.persist.saveURI(this.obj_URI, null, null, this.data, "", this.thefile);	
+	},
+	/**
+	 * Adds a particular song download to the queue.
+	 **/
+	addDownload: function(url, key, filename)
+	{
+		orgArgeeCodeGrooveShredder.toBeDownloaded.push([url, key, filename]);
+		orgArgeeCodeGrooveShredder.grooveDownloader.runDownloads();
+	},
+	/**
+	 * Run as many downloads as possible at all times.
+	 **/
+	runDownloads: function()
+	{
+		// TO-DO: Get number of dloads from preferences
+		while(this.theApp.toBeDownloaded.length > 0
+			  && this.theApp.beingDownloaded < 5){
+			var item = this.theApp.toBeDownloaded.shift();
+			this.execute(item[0], item[1], item[2]);
+			this.theApp.beingDownloaded++;
+		}
 	},
 	/**
 	 * This function is the main entry point for this class - it takes
@@ -271,6 +301,64 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 };
 
 /**
+ * fileUtilities
+ *
+ * Performs utility functions related to files and directories.
+ **/
+orgArgeeCodeGrooveShredder.fileUtilities = 
+{
+	/**
+	 * Fetches the details of the current song being played and converts
+	 * them into a file name.
+	 **/
+	getFileName: function()
+	{
+		var theApp = orgArgeeCodeGrooveShredder;
+		var songBox = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
+		var song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
+		var song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
+		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
+		theApp.fileUtilities.parseFileName(song_name, song_artist, song_album);
+	},
+	/**
+	 * Uses the file name preference to create the file name given details
+	 * about the song.
+	 **/
+	parseFileName: function(song_name, song_artist, song_album)
+	{
+		var theApp = orgArgeeCodeGrooveShredder;
+		var file_pref = theApp.gpreferences.getCharPref(".filename");
+		theApp.song_name = song_name;
+		theApp.song_artist = song_artist;
+		theApp.song_album = song_album;
+		var song_file = theApp.utility.replaceTags(file_pref) + ".mp3";
+		return song_file;
+	}
+}
+ 
+/**
+ * grooveQueueListener
+ *
+ * A web progress listener that keeps an eye on download status. Helps
+ * to enforce the limit on concurrent downloads.
+ **/
+orgArgeeCodeGrooveShredder.grooveQueueListener =
+{
+	onProgressChange: function(a, b, c, d, e, f){},
+	onSecurityChange: function(a, b, c){},
+	onDownloadStateChange: function(a, b){},
+	onStateChange: function(a, b, c, d){
+		if(c & Components.interfaces.nsIWebProgressListener.STATE_STOP){
+			var theApp = orgArgeeCodeGrooveShredder;
+			if(theApp.beingDownloaded > 0){
+				theApp.beingDownloaded--;
+				theApp.grooveDownloader.runDownloads();
+			}
+		}
+	}
+}
+
+/**
  * utility
  *
  * Provides utility functions used throughout the extension, as well
@@ -284,11 +372,36 @@ orgArgeeCodeGrooveShredder.utility =
 	 **/
 	domChanged: function(event){
 		var theApp = orgArgeeCodeGrooveShredder;
-		if($grooveShredderQuery(event.target).hasClass('jj_menu_item_play_last')){
+		if($grooveShredderQuery(event.target)
+					.hasClass('jj_menu_item_play_last')){
 			theApp.utility.appendContextButton(event.target);
 		} else if($grooveShredderQuery(event.target)
 					.attr('id') == "page_header"){
 			theApp.utility.appendListButton(event.target);
+		} else if($grooveShredderQuery(event.target)
+					.hasClass('slick-row')){
+			theApp.utility.appendSongItem(event.target);		
+		}
+	},
+	/**
+	 * Append every song that is loaded to a temporary container. This
+	 * is done because we are otherwise unable to see every song in a
+	 * playlist or search.
+	 **/
+	appendSongItem: function(songItem){
+		var theApp = orgArgeeCodeGrooveShredder;
+		var newSong = $grooveShredderQuery(songItem).clone();
+		var element = theApp.browser.contentDocument.getElementById("grid");
+		// Get song ID and convert to get unique ID
+		var songId = $grooveShredderQuery(newSong).find('.play').attr('rel');
+		if(typeof songId !== "undefined"){
+			$grooveShredderQuery(newSong).removeClass('slick-row')
+										 .addClass('groovy-row')
+										 .attr('id', "rel-"+songId);
+			// Remove this song if it was added previously
+			$grooveShredderQuery(element).find("#rel-"+songId).remove();
+			// Add song to temporary container
+			$grooveShredderQuery(element).find(".slick-header-secondary").append(newSong);
 		}
 	},
 	/**
@@ -327,23 +440,7 @@ orgArgeeCodeGrooveShredder.utility =
 	 **/
 	handleContextButton: function(event){
 		var theApp = orgArgeeCodeGrooveShredder;
-		if(typeof theApp.streamKeyData === "undefined"){
-			alert("You must play at least one song prior to using this button.");
-			return false;
-		} else if(!theApp.gpreferences.getBoolPref(".nodupeprompt")
-					|| !theApp.gpreferences.getBoolPref(".nodialog")){
-			// Warn the user, too many dialogs spell disaster
-			if(!confirm('It is HIGHLY recommended to turn off duplicate file prompts,\r\n' +
-						'as well as skipping the file select dialog.\r\n' +
-						'Do you still want to Continue?')) return false;
-		}
-		var element = theApp.browser.contentDocument.getElementById("grid");
-		// Use a timer to download incrementally
-		var timer = 0;
-		$grooveShredderQuery(element).find('.slick-row.selected').each(function(){
-			theApp.utility.preMultiButton(this, timer);
-			timer += 1000;
-		});
+		theApp.utility.preMultiButton("context");
 	},
 	/**
 	 * Uses jQuery to find all items in the current list, then initiates
@@ -351,6 +448,13 @@ orgArgeeCodeGrooveShredder.utility =
 	 **/
 	handleListButton: function(event){
 		var theApp = orgArgeeCodeGrooveShredder;
+		theApp.utility.preMultiButton("list");
+	},
+	/**
+	 * Handles fetching the file name and executing download.
+	 **/
+	preMultiButton: function(buttonType){
+		var theApp = orgArgeeCodeGrooveShredder;
 		if(typeof theApp.streamKeyData === "undefined"){
 			alert("You must play at least one song prior to using this button.");
 			return false;
@@ -362,34 +466,56 @@ orgArgeeCodeGrooveShredder.utility =
 						'Do you still want to Continue?')) return false;
 		}
 		var element = theApp.browser.contentDocument.getElementById("grid");
-		// Use a timer to download incrementally
+		// Is this playlist short or long?
+		var $viewPort = $grooveShredderQuery(element).find('.slick-viewport');
+		var scrlHeight = $viewPort.attr('scrollHeight');
+		var clntHeight = $viewPort.attr('clientHeight');
+		// Clear out our temporary song storage
+		$grooveShredderQuery(element).find('.slick-header-secondary').html("");
+		// Scroll through the list so that temp. storage is populated
+		$grooveShredderQuery(element)
+			.find('.slick-viewport')
+			.animate({scrollTop: 5000},
+					 10000,
+					 "linear",
+					 function(){
+						var limiter = false;
+						$grooveShredderQuery(this)
+							.animate({scrollTop: 0},
+									 10000,
+									 "linear",
+									 function(){
+										if(!limiter){
+											theApp.utility.postMultiButton(buttonType);
+											this.limiter = true;
+										}
+									 });
+					 });
+	},
+	postMultiButton: function(buttonType){
 		var timer = 0;
-		$grooveShredderQuery(element).find('.slick-row').each(function(){
-			theApp.utility.preMultiButton(this, timer);
+		var tempArray;
+		var theApp = orgArgeeCodeGrooveShredder;
+		var element = theApp.browser.contentDocument.getElementById("grid");
+		if(buttonType == "list"){
+			tempArray = $grooveShredderQuery(element).find('.groovy-row');
+		} else {
+			tempArray = $grooveShredderQuery(element).find('.groovy-row.selected');
+		}
+		$grooveShredderQuery(tempArray).each(function(){
+			// Strip out the song's details
+			var songId = $grooveShredderQuery(this).find(".play").attr('rel');
+			var songName = $grooveShredderQuery(this).find(".songLink").html();
+			var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
+			var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
+			var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
+
+			// Fetch the stream key and execute download
+			setTimeout(function(){
+				theApp.utility.getStreamKey(songId, theApp.grooveDownloader.addDownload, songFile, 0);
+			},timer);
 			timer += 1000;
 		});
-	},
-	/**
-	 * Handles fetching the file name and executing download.
-	 **/
-	preMultiButton: function(element, timer){
-		var theApp = orgArgeeCodeGrooveShredder;
-		// Strip out the song's details
-		var songId = $grooveShredderQuery(element).find(".play").attr('rel');
-		var songName = $grooveShredderQuery(element).find(".songLink").html();
-		var songAlbum = $grooveShredderQuery(element).find(".album > a").html();
-		var songArtist = $grooveShredderQuery(element).find(".artist > a").html();
-		var songFile = theApp.grooveDownloader.parseFileName(songName, songArtist, songAlbum);
-		// Fetch the stream key and execute download
-		setTimeout(function(){
-			theApp.utility.getStreamKey(songId, theApp.utility.runMultiButton, songFile, 0);
-		},timer);
-	},
-	/**
-	 * This function must exist as a workaround for scope.
-	 **/
-	runMultiButton: function(url, key, filename){
-		orgArgeeCodeGrooveShredder.grooveDownloader.execute(url, key, filename);
 	},
 	/**
 	 * Perform the functions that must take place before the "Download Song"
