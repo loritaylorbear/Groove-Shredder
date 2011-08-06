@@ -16,6 +16,7 @@
       <preference id="downdir" name="extensions.grooveshredder.downdir" type="string"/>
 	  <preference id="playdir" name="extensions.grooveshredder.playdir" type="bool"/>
 	  <preference id="subdowndir" name="extensions.grooveshredder.subdowndir" type="string"/>
+	  <preference id="concurrnum" name="extensions.grooveshredder.concurrnum" type="int"/>
     </preferences>
 	<div id="abovecontainer">
 		<h1>Groove Shredder <span id="version">&version.number;</span></h1>
@@ -43,6 +44,8 @@
 					<checkbox id="checkautonext" preference="autonext" label="&checkautonext.label;" accesskey="&checkautonext.accesskey;"/>
 				<checkbox id="checknodialog" preference="nodialog" label="&checknodialog.label;" accesskey="&checknodialog.accesskey;"/>
 					<checkbox id="checknodupeprompt" preference="nodupeprompt" label="&checknodupeprompt.label;" accesskey="&checknodupeprompt.accesskey;"/>
+				<caption control="textconcurrnum" accesskey="&concurrnum.accesskey;" label="&concurrnum.label;"/>
+					<textbox size="3" id="textconcurrnum" preference="concurrnum"/>
 			</tabpanel>
 			<tabpanel id="tab2">
 				<groupbox>

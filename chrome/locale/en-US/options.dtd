@@ -23,8 +23,10 @@
 <!ENTITY filepref.accesskey "F">
 <!ENTITY checkplaydir.label "Create Sub-Directory using Current Playlist">
 <!ENTITY checkplaydir.accesskey "P">
+<!ENTITY concurrnum.label "Concurrent downloads at a time:">
+<!ENTITY concurrnum.accesskey "T">
 <!ENTITY thanks.text "Thank you for using Groove Shredder.">
 <!ENTITY updated.text "You are using the latest version.">
 <!ENTITY outdated.text "You are using an outdated version.">
 <!ENTITY unreviewed.text "This version is being reviewed.">
-<!ENTITY version.number "1.13.7">
+<!ENTITY version.number "1.14">

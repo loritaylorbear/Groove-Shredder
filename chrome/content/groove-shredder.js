@@ -5,7 +5,7 @@ var orgArgeeCodeGrooveShredder = {};
 orgArgeeCodeGrooveShredder.$ = jQuery.noConflict();
 
 /* Global Variables contained in the namespace */
-orgArgeeCodeGrooveShredder.console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+// orgArgeeCodeGrooveShredder.console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 orgArgeeCodeGrooveShredder.pref_service = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 orgArgeeCodeGrooveShredder.gpreferences = orgArgeeCodeGrooveShredder.pref_service.getBranch("extensions.grooveshredder");
 
@@ -250,9 +250,9 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	 **/
 	runDownloads: function()
 	{
-		// TO-DO: Get number of dloads from preferences
+		var maxdl = this.theApp.gpreferences.getIntPref('.concurrnum');
 		while(this.theApp.toBeDownloaded.length > 0
-			  && this.theApp.beingDownloaded < 5){
+			  && this.theApp.beingDownloaded < maxdl){
 			var item = this.theApp.toBeDownloaded.shift();
 			this.getStreamKeyAndSave(item[0], item[1], item[2]);
 			this.theApp.beingDownloaded++;
