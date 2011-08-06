@@ -4,7 +4,7 @@
     <em:id>grooveshredder@code.argee.org</em:id>
     <em:type>2</em:type>
     <em:name>Groove Shredder</em:name>
-    <em:version>1.14</em:version>
+    <em:version>1.14.1</em:version>
     <em:creator>Rohit Garg</em:creator>
     <em:contributor></em:contributor>
     <em:description>An extension to download mp3 files from Grooveshark</em:description>
