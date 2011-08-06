@@ -263,7 +263,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		var postdata = theApp.streamKeyData;
 		if(song_id != 0) postdata = postdata.replace(/"songID":[0-9]+/g,
 													 '"songID":'+song_id);
-		var staleKey = $grooveShredderQuery.parseJSON(theApp.streamKeyData);
+		var staleKey = JSON.parse(theApp.streamKeyData);
 		$grooveShredderQuery.ajax({
 			url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
 			type: 'POST',
@@ -271,7 +271,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 			dataType: 'text',
 			contentType: 'application/json',
 			success: function(result) {
-				result = $grooveShredderQuery.parseJSON(result);
+				result = JSON.parse(result);
 				if(times == 0)
 					theApp.grooveDownloader.execute(result.result.ip, result.result.streamKey, filename);
 				else
@@ -491,9 +491,27 @@ orgArgeeCodeGrooveShredder.utility =
 						'as well as skipping the file select dialog.\r\n' +
 						'Do you still want to Continue?')) return false;
 		}
-		var element = theApp.browser.contentDocument.getElementById("grid");
+		$grooveShredderQuery('body',theApp.browser.contentDocument)
+			.append('<div id="groove-blocker"></div>');
+		var element = $grooveShredderQuery('.slick-viewport',theApp.browser.contentDocument)[0];
+		$grooveShredderQuery(element)
+			.scrollTop(0)
+			.animate({scrollTop: element.scrollHeight},
+					 {duration: element.scrollHeight*2})
+			.animate({scrollTop: 0},
+					 {duration: element.scrollHeight*2});
+		setTimeout(function(){
+			theApp.utility.downloadAllSelected();
+		}, element.scrollHeight*4+500);
+	},
+	/**
+	 * Downloads everything we found to be selected.
+	 **/
+	downloadAllSelected: function(){
 		var timer = 0;
 		var theApp = orgArgeeCodeGrooveShredder;
+		$grooveShredderQuery('#groove-blocker',theApp.browser.contentDocument)
+			.remove();
 		var element = theApp.browser.contentDocument.getElementById("grid");
 		var tempArray = $grooveShredderQuery(element).find('.groovy-row.selected');
 		$grooveShredderQuery(tempArray).each(function(){
