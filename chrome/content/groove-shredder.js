@@ -6,6 +6,7 @@ orgArgeeCodeGrooveShredder.$ = jQuery.noConflict();
 
 /* Global Variables contained in the namespace */
 // orgArgeeCodeGrooveShredder.console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+orgArgeeCodeGrooveShredder.download_manager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
 orgArgeeCodeGrooveShredder.pref_service = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 orgArgeeCodeGrooveShredder.gpreferences = orgArgeeCodeGrooveShredder.pref_service.getBranch("extensions.grooveshredder");
 
@@ -21,12 +22,8 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 	onLoad: function() {
 		// Set up an empty download queue.
 		this.theApp.toBeDownloaded = new Array();
-		// Number of songs being downloaded.
-		this.theApp.beingDownloaded = 0;
 		// Attach our download listener.
-		var download_manager = Components.classes["@mozilla.org/download-manager;1"]
-										 .getService(Components.interfaces.nsIDownloadManager);
-		download_manager.addListener(this.theApp.grooveQueueListener);
+		this.theApp.download_manager.addListener(this.theApp.grooveQueueListener);
 		// Check whether Groove Shredder is enabled.
 		if(this.theApp.gpreferences.prefHasUserValue("enabled")){
 			if(this.theApp.gpreferences.getBoolPref("enabled")){
@@ -252,10 +249,9 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	{
 		var maxdl = this.theApp.gpreferences.getIntPref('.concurrnum');
 		while(this.theApp.toBeDownloaded.length > 0
-			  && this.theApp.beingDownloaded < maxdl){
+			  && this.theApp.download_manager.activeDownloadCount < maxdl){
 			var item = this.theApp.toBeDownloaded.shift();
 			this.getStreamKeyAndSave(item[0], item[1], item[2]);
-			this.theApp.beingDownloaded++;
 		}
 	},
 	/**
@@ -408,10 +404,7 @@ orgArgeeCodeGrooveShredder.grooveQueueListener =
 	onStateChange: function(a, b, c, d){
 		if(c & Components.interfaces.nsIWebProgressListener.STATE_STOP){
 			var theApp = orgArgeeCodeGrooveShredder;
-			if(theApp.beingDownloaded > 0){
-				theApp.beingDownloaded--;
-				theApp.grooveDownloader.runDownloads();
-			}
+			theApp.grooveDownloader.runDownloads();
 		}
 	}
 }
