@@ -1,8 +1,11 @@
-/* Declaring namespaces to prevent conflicts */
-var $grooveShredderQuery = jQuery.noConflict();
+/* Declaring namespace to prevent conflicts */
 var orgArgeeCodeGrooveShredder = {};
 
+/* Drop jQuery into the namespace like a heavy rock */
+orgArgeeCodeGrooveShredder.$ = jQuery.noConflict();
+
 /* Global Variables contained in the namespace */
+orgArgeeCodeGrooveShredder.console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 orgArgeeCodeGrooveShredder.pref_service = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 orgArgeeCodeGrooveShredder.gpreferences = orgArgeeCodeGrooveShredder.pref_service.getBranch("extensions.grooveshredder");
 
@@ -229,7 +232,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	saveSong: function()
 	{
 		var dbutton = this.theApp.browser.contentDocument.getElementById("playerDetails_grooveShredder");
-		$grooveShredderQuery(dbutton).fadeTo("slow",0.25).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
+		orgArgeeCodeGrooveShredder.$(dbutton).fadeTo("slow",0.25).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
 		this.xfer.init(this.obj_URI, this.file_URI, "", null, null, null, this.persist);
 		this.persist.progressListener = this.xfer;
 		this.persist.saveURI(this.obj_URI, null, null, this.data, "", this.thefile);	
@@ -264,7 +267,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		if(song_id != 0) postdata = postdata.replace(/"songID":[0-9]+/g,
 													 '"songID":'+song_id);
 		var staleKey = JSON.parse(theApp.streamKeyData);
-		$grooveShredderQuery.ajax({
+		theApp.$.ajax({
 			url: 'http://grooveshark.com/more.php?getStreamKeyFromSongIDEx=',
 			type: 'POST',
 			data: postdata,
@@ -314,9 +317,9 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 	{
 		var theApp = orgArgeeCodeGrooveShredder;
 		var songBox = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
-		var song_name = $grooveShredderQuery(songBox).find('.currentSongLink').attr('title');
-		var song_artist = $grooveShredderQuery(songBox).find('.artist').attr('title');
-		var song_album = $grooveShredderQuery(songBox).find('.album').attr('title');
+		var song_name = theApp.$(songBox).find('.currentSongLink').attr('title');
+		var song_artist = theApp.$(songBox).find('.artist').attr('title');
+		var song_album = theApp.$(songBox).find('.album').attr('title');
 		return theApp.fileUtilities.parseFileName(song_name, song_artist, song_album);
 	},
 	/**
@@ -362,10 +365,10 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 		
 		if(theApp.gpreferences.getBoolPref('.playdir')){
 			var playDetails = theApp.browser.contentDocument.getElementById("page_header");
-			var subdir = $grooveShredderQuery(playDetails).find('.name').html();
+			var subdir = theApp.$(playDetails).find('.name').html();
 			if(typeof(subdir) !== undefined){
 				if(subdir == null) {
-					subdir = $grooveShredderQuery(playDetails).find('h3').html();
+					subdir = theApp.$(playDetails).find('h3').html();
 					subdir = subdir.replace(/<span .*>[a-zA-Z]+<\/span>:/gi,"Search -");
 					subdir = subdir.replace(/<[^>]+>/g,"");
 				}
@@ -427,13 +430,13 @@ orgArgeeCodeGrooveShredder.utility =
 	 **/
 	domChanged: function(event){
 		var theApp = orgArgeeCodeGrooveShredder;
-		if($grooveShredderQuery(event.target)
+		if(theApp.$(event.target)
 					.hasClass('jj_menu_item_play_last')){
 			theApp.utility.appendContextButton(event.target);
-		} else if($grooveShredderQuery(event.target)
+		} else if(theApp.$(event.target)
 					.hasClass('slick-row') && theApp.recordSongs){
 			theApp.utility.appendSongItem(event.target);
-			$grooveShredderQuery(event.target).click(function(){
+			theApp.$(event.target).click(function(){
 				// If this item is selected or deselected, re-append
 				theApp.utility.appendSongItem(this);
 			});
@@ -446,18 +449,18 @@ orgArgeeCodeGrooveShredder.utility =
 	 **/
 	appendSongItem: function(songItem){
 		var theApp = orgArgeeCodeGrooveShredder;
-		var newSong = $grooveShredderQuery(songItem).clone();
+		var newSong = theApp.$(songItem).clone();
 		var element = theApp.browser.contentDocument.getElementById("grid");
 		// Get song ID and convert to get unique ID
-		var songId = $grooveShredderQuery(newSong).find('.play').attr('rel');
+		var songId = theApp.$(newSong).find('.play').attr('rel');
 		if(typeof songId !== "undefined"){
-			$grooveShredderQuery(newSong).removeClass('slick-row')
+			theApp.$(newSong).removeClass('slick-row')
 										 .addClass('groovy-row')
 										 .attr('id', "rel-"+songId);
 			// Remove this song if it was added previously
-			$grooveShredderQuery(element).find("#rel-"+songId).remove();
+			theApp.$(element).find("#rel-"+songId).remove();
 			// Add song to temporary container
-			$grooveShredderQuery(element).find(".slick-header-secondary").append(newSong);
+			theApp.$(element).find(".slick-header-secondary").append(newSong);
 		}
 	},
 	/**
@@ -472,9 +475,9 @@ orgArgeeCodeGrooveShredder.utility =
 						<span class="jj_menu_item_text" title="Download Selected">\
 						Download Selected\
 						</span></div>';
-		$grooveShredderQuery(menuItem).after(downItem);
+		theApp.$(menuItem).after(downItem);
 		var element = theApp.browser.contentDocument.getElementById("gs_menu_item");
-		$grooveShredderQuery(element).click(theApp.utility.handleContextButton);
+		theApp.$(element).click(theApp.utility.handleContextButton);
 	},
 	/**
 	 * Handles fetching the file name and executing download.
@@ -491,18 +494,18 @@ orgArgeeCodeGrooveShredder.utility =
 						'as well as skipping the file select dialog.\r\n' +
 						'Do you still want to Continue?')) return false;
 		}
-		$grooveShredderQuery('body',theApp.browser.contentDocument)
+		theApp.$('body',theApp.browser.contentDocument)
 			.append('<div id="groove-blocker"></div>');
 		// Start recording song rows
 		theApp.recordSongs = true;
-		var element = $grooveShredderQuery('.slick-viewport',theApp.browser.contentDocument)[0];
+		var element = theApp.$('.slick-viewport',theApp.browser.contentDocument)[0];
 		// Paste the songs we already have
-		$grooveShredderQuery(element).find('.slick-row.selected')
+		theApp.$(element).find('.slick-row.selected')
 									 .each(function(){
 											theApp.utility.appendSongItem(this);
 										   });
 		// Scroll down and up to find selected songs
-		$grooveShredderQuery(element)
+		theApp.$(element)
 			.scrollTop(0)
 			.animate({scrollTop: element.scrollHeight},
 					 {duration: element.scrollHeight*2})
@@ -520,16 +523,16 @@ orgArgeeCodeGrooveShredder.utility =
 		var theApp = orgArgeeCodeGrooveShredder;
 		// Stop recording songs
 		theApp.recordSongs = false;
-		$grooveShredderQuery('#groove-blocker',theApp.browser.contentDocument)
+		theApp.$('#groove-blocker',theApp.browser.contentDocument)
 			.remove();
 		var element = theApp.browser.contentDocument.getElementById("grid");
-		var tempArray = $grooveShredderQuery(element).find('.groovy-row.selected');
-		$grooveShredderQuery(tempArray).each(function(){
+		var tempArray = theApp.$(element).find('.groovy-row.selected');
+		theApp.$(tempArray).each(function(){
 			// Strip out the song's details
-			var songId = $grooveShredderQuery(this).find(".play").attr('rel');
-			var songName = $grooveShredderQuery(this).find(".songLink").html();
-			var songAlbum = $grooveShredderQuery(this).find(".album > a").html();
-			var songArtist = $grooveShredderQuery(this).find(".artist > a").html();
+			var songId = theApp.$(this).find(".play").attr('rel');
+			var songName = theApp.$(this).find(".songLink").html();
+			var songAlbum = theApp.$(this).find(".album > a").html();
+			var songArtist = theApp.$(this).find(".artist > a").html();
 			var songFile = theApp.fileUtilities.parseFileName(songName, songArtist, songAlbum);
 
 			// Fetch the stream key and execute download
@@ -549,10 +552,10 @@ orgArgeeCodeGrooveShredder.utility =
 		theApp.streamKeyData = postdata;
 		// Add a button to grooveshark
 		var element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
-		$grooveShredderQuery(element).children('b').remove();
-		$grooveShredderQuery(element).append('<b id="playerDetails_grooveShredder"> \
+		theApp.$(element).children('b').remove();
+		theApp.$(element).append('<b id="playerDetails_grooveShredder"> \
 												Download Song</b>');
-		$grooveShredderQuery(element).children('b').click(function(){
+		theApp.$(element).children('b').click(function(){
 			theApp.grooveDownloader.getStreamKeyAndSave(0, "", 5);
 		});
 		// Autodownload if preferred
@@ -569,17 +572,18 @@ orgArgeeCodeGrooveShredder.utility =
 	 * Create the 'options' link and append it to the page.
 	 **/
 	addOptionsLink: function(){
+		var theApp = orgArgeeCodeGrooveShredder;
 		// At the moment this function adds both CSS and the options link
 		var topBar = gBrowser.contentDocument.getElementById("header");
-		if($grooveShredderQuery(topBar).find('#grooveshark').size() > 0
-				&& $grooveShredderQuery(topBar).find('#gs-options-link').size() == 0){
-			$grooveShredderQuery(topBar).append('<a id="gs-options-link"> \
+		if(theApp.$(topBar).find('#grooveshark').size() > 0
+				&& theApp.$(topBar).find('#gs-options-link').size() == 0){
+			theApp.$(topBar).append('<a id="gs-options-link"> \
 													Groove Shredder Options</a>');
 			var headElement = gBrowser.contentDocument.getElementsByTagName("head")[0];
-			$grooveShredderQuery(headElement).append('<link rel="stylesheet" type="text/css" \
+			theApp.$(headElement).append('<link rel="stylesheet" type="text/css" \
 														href="resource://grooveshredder/page.css"/>');
 			// Add the event to make things work
-			$grooveShredderQuery(topBar).find('#gs-options-link').click(function(){
+			theApp.$(topBar).find('#gs-options-link').click(function(){
 				window.open("chrome://grooveshredder/content/options.xul", 
 								"Groove Shredder preferences", "chrome, centerscreen");
 			});
