@@ -431,7 +431,7 @@ orgArgeeCodeGrooveShredder.utility =
 					.hasClass('jj_menu_item_play_last')){
 			theApp.utility.appendContextButton(event.target);
 		} else if($grooveShredderQuery(event.target)
-					.hasClass('slick-row')){
+					.hasClass('slick-row') && theApp.recordSongs){
 			theApp.utility.appendSongItem(event.target);
 			$grooveShredderQuery(event.target).click(function(){
 				// If this item is selected or deselected, re-append
@@ -493,7 +493,15 @@ orgArgeeCodeGrooveShredder.utility =
 		}
 		$grooveShredderQuery('body',theApp.browser.contentDocument)
 			.append('<div id="groove-blocker"></div>');
+		// Start recording song rows
+		theApp.recordSongs = true;
 		var element = $grooveShredderQuery('.slick-viewport',theApp.browser.contentDocument)[0];
+		// Paste the songs we already have
+		$grooveShredderQuery(element).find('.slick-row.selected')
+									 .each(function(){
+											theApp.utility.appendSongItem(this);
+										   });
+		// Scroll down and up to find selected songs
 		$grooveShredderQuery(element)
 			.scrollTop(0)
 			.animate({scrollTop: element.scrollHeight},
@@ -510,6 +518,8 @@ orgArgeeCodeGrooveShredder.utility =
 	downloadAllSelected: function(){
 		var timer = 0;
 		var theApp = orgArgeeCodeGrooveShredder;
+		// Stop recording songs
+		theApp.recordSongs = false;
 		$grooveShredderQuery('#groove-blocker',theApp.browser.contentDocument)
 			.remove();
 		var element = theApp.browser.contentDocument.getElementById("grid");
