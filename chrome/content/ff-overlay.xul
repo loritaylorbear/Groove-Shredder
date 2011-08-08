@@ -2,7 +2,7 @@
 <?xml-stylesheet href="chrome://grooveshredder/skin/overlay.css" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://grooveshredder/locale/overlay.dtd">
 <overlay id="grooveshredder-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script src="jquery.js"/> 
+  <script src="jquery-1.4.min.js"/> 
   <script src="toolbar.js"/>
   <script src="groove-shredder.js"/>
   
