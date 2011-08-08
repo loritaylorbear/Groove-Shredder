@@ -355,7 +355,7 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 		} else {
 			var dir = Components.classes["@mozilla.org/file/local;1"].
 					createInstance(Components.interfaces.nsILocalFile);
-			dir.initWithPath(theApp.gpreferences.getCharPref('.downloc'));
+			dir.initWithPath(decodeURIComponent(escape(theApp.gpreferences.getCharPref('.downloc'))));
 			directory = dir;
 		}
 		
@@ -377,14 +377,14 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 		} else if(theApp.gpreferences.prefHasUserValue('.downdir')){
 			var dir_pref = theApp.gpreferences.getCharPref(".downdir");
 			var subdir = theApp.fileUtilities.replaceTags(dir_pref);
-			directory.appendRelativePath(subdir);
+			directory.appendRelativePath(decodeURIComponent(escape(subdir)));
 		}
 		
 		// Deal with second sub-directory option
 		if(theApp.gpreferences.prefHasUserValue('.subdowndir')){
 			var dir_pref = theApp.gpreferences.getCharPref(".subdowndir");
 			var subdir = theApp.fileUtilities.replaceTags(dir_pref);
-			directory.appendRelativePath(subdir);
+			directory.appendRelativePath(decodeURIComponent(escape(subdir)));
 		}	
 		return directory;
 	}
