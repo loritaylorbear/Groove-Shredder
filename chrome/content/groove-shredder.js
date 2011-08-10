@@ -428,15 +428,21 @@ orgArgeeCodeGrooveShredder.utility =
 	domChanged: function(event){
 		var theApp = orgArgeeCodeGrooveShredder;
 		if(theApp.$(event.target)
-					.hasClass('jj_menu_item_play_last')){
+				 .hasClass('jj_menu_item_play_last')){
+			// Append a context button to the right click menu
 			theApp.utility.appendContextButton(event.target);
 		} else if(theApp.$(event.target)
-					.hasClass('slick-row') && theApp.recordSongs){
+				  .hasClass('slick-row') && theApp.recordSongs){
+			// Store all seen songs in a DOM element
 			theApp.utility.appendSongItem(event.target);
 			theApp.$(event.target).click(function(){
 				// If this item is selected or deselected, re-append
 				theApp.utility.appendSongItem(this);
 			});
+		} else if(typeof theApp.streamKeyData !== "undefined" &&
+				  theApp.$(event.target).hasClass('currentSongLink')){
+			// Deal with disappearing button bug
+			theApp.utility.addSongButton(theApp.streamKeyData);
 		}
 	},
 	/**
