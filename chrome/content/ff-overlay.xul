@@ -7,7 +7,7 @@
   <script src="groove-shredder.js"/>
   
   <stringbundleset id="stringbundleset">
-    <stringbundle id="grooveshredder-strings" src="chrome://grooveshredder/locale/overlay.properties"/>
+    <stringbundle id="grooveshredder-strings" src="chrome://grooveshredder/locale/grooveshredder.properties"/>
   </stringbundleset>
 
   <toolbarpalette id="BrowserToolbarPalette">

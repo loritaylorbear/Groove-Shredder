@@ -20,6 +20,8 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 	* This runs every time Firefox starts.
 	**/
 	onLoad: function() {
+		// Set up an object to fetch localized strings.
+		this.theApp.localize = document.getElementById("grooveshredder-strings");
 		// Set up an empty download queue.
 		this.theApp.toBeDownloaded = new Array();
 		// Attach our download listener.
@@ -47,10 +49,10 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 		// If on turn off, if off turn on!
 		if(this.initialized){
 			this.setDisabled();
-			alert("Grooveshredder is now disabled.");
+			alert(this.theApp.localize.getString('disabledString'));
 		} else {
 			this.setEnabled();
-			alert("Grooveshredder is now enabled.");
+			alert(this.theApp.localize.getString('enabledString'));
 		}
 	},
 	/**
@@ -61,6 +63,8 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 		this.initialized = true;
 		this.theApp.gpreferences.setBoolPref("enabled", true);
 		this.theApp.grooveRequestObserver.register();
+		//var stringSet = document.getElementById("grooveshredder-strings");
+		//this.theApp.getString = stringSet.getString;
 		if(btn !== null)
 			btn.setAttribute("class","grooveshredder-tbutton-on toolbarbutton-1 chromeclass-toolbar-additional");	
 	},
@@ -195,8 +199,8 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 		if(!this.theApp.gpreferences.getBoolPref(".nodialog")){
 			var nsIFilePicker = Components.interfaces.nsIFilePicker;
 			var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-			fp.init(window, "Save GrooveShredded File As...", nsIFilePicker.modeSave);
-			fp.appendFilter("MP3 Files","*.mp3");
+			fp.init(window, this.theApp.localize.getString('saveTitle'), nsIFilePicker.modeSave);
+			fp.appendFilter(this.theApp.localize.getString('mp3files'),"*.mp3");
 			fp.displayDirectory = directory;
 			fp.defaultString = this.song_file;
 			var res = fp.show();
@@ -217,7 +221,8 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 			this.file_URI = this.ios.newFileURI(this.thefile);
 			if(this.thefile.exists()){
 				if(this.theApp.gpreferences.getBoolPref(".nodupeprompt")) return false;
-				if(!confirm(this.song_file+'\r\nFile exists in target location. Overwrite?')) return false;
+				if(!confirm(this.song_file+'\r\n'+
+							this.theApp.localize.getString('overPrompt'))) return false;
 			}
 			return true;
 		}
@@ -229,7 +234,6 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	saveSong: function()
 	{
 		var dbutton = this.theApp.browser.contentDocument.getElementById("playerDetails_grooveShredder");
-		orgArgeeCodeGrooveShredder.$(dbutton).fadeTo("slow",0.25).unbind('click').click(function(){alert('Please re-add song to queue to download again');});
 		this.xfer.init(this.obj_URI, this.file_URI, "", null, null, null, this.persist);
 		this.persist.progressListener = this.xfer;
 		this.persist.saveURI(this.obj_URI, null, null, this.data, "", this.thefile);	
@@ -478,14 +482,12 @@ orgArgeeCodeGrooveShredder.utility =
 	handleContextButton: function(){
 		var theApp = orgArgeeCodeGrooveShredder;
 		if(typeof theApp.streamKeyData === "undefined"){
-			alert("You must play at least one song prior to using this button.");
+			alert(theApp.localize.getString('playFirst'));
 			return false;
 		} else if(!theApp.gpreferences.getBoolPref(".nodupeprompt")
 					|| !theApp.gpreferences.getBoolPref(".nodialog")){
 			// Warn the user, too many dialogs spell disaster
-			if(!confirm('It is HIGHLY recommended to turn off duplicate file prompts,\r\n' +
-						'as well as skipping the file select dialog.\r\n' +
-						'Do you still want to Continue?')) return false;
+			if(!confirm(theApp.localize.getString('multiWarn'))) return false;
 		}
 		theApp.$('body',theApp.browser.contentDocument)
 			.append('<div id="groove-blocker"></div>');
@@ -578,7 +580,8 @@ orgArgeeCodeGrooveShredder.utility =
 			// Add the event to make things work
 			theApp.$(topBar).find('#gs-options-link').click(function(){
 				window.open("chrome://grooveshredder/content/options.xul", 
-								"Groove Shredder preferences", "chrome, centerscreen");
+							theApp.localize.getString('prefsTitle'),
+							"chrome, centerscreen");
 			});
 		}
 	},
