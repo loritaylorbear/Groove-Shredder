@@ -49,10 +49,10 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 		// If on turn off, if off turn on!
 		if(this.initialized){
 			this.setDisabled();
-			alert(this.theApp.localize.getString('disabledString'));
+			this.theApp.utility.showNotify('disabledString');
 		} else {
 			this.setEnabled();
-			alert(this.theApp.localize.getString('enabledString'));
+			this.theApp.utility.showNotify('enabledString');
 		}
 	},
 	/**
@@ -63,8 +63,6 @@ orgArgeeCodeGrooveShredder.grooveshredder = {
 		this.initialized = true;
 		this.theApp.gpreferences.setBoolPref("enabled", true);
 		this.theApp.grooveRequestObserver.register();
-		//var stringSet = document.getElementById("grooveshredder-strings");
-		//this.theApp.getString = stringSet.getString;
 		if(btn !== null)
 			btn.setAttribute("class","grooveshredder-tbutton-on toolbarbutton-1 chromeclass-toolbar-additional");	
 	},
@@ -110,8 +108,7 @@ orgArgeeCodeGrooveShredder.grooveRequestObserver =
 				if(this.originalTkn)
 					// If we already have a Grooveshark tab, alert user
 					if(typeof this.theApp.browser !== "undefined")
-						alert("Groove Shredder will no longer work with " +
-							  "the older Grooveshark tab.");
+						this.theApp.utility.showNotify('onlyNewTab');
 				// Grooveshark was opened in this tab, remember the tab
 				var notificationCallbacks = channel.notificationCallbacks;
 				var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
@@ -488,7 +485,7 @@ orgArgeeCodeGrooveShredder.utility =
 	handleContextButton: function(){
 		var theApp = orgArgeeCodeGrooveShredder;
 		if(typeof theApp.streamKeyData === "undefined"){
-			alert(theApp.localize.getString('playFirst'));
+			theApp.utility.showNotify('playFirst');
 			return false;
 		} else if(!theApp.gpreferences.getBoolPref(".nodupeprompt")
 					|| !theApp.gpreferences.getBoolPref(".nodialog")){
@@ -497,6 +494,8 @@ orgArgeeCodeGrooveShredder.utility =
 		}
 		theApp.$('body',theApp.browser.contentDocument)
 			.append('<div id="groove-blocker"></div>');
+		// Show a message to the user
+		theApp.utility.showNotify('scanningSongs');
 		// Start recording song rows
 		theApp.recordSongs = true;
 		var element = theApp.$('.slick-viewport',theApp.browser.contentDocument)[0];
@@ -528,6 +527,9 @@ orgArgeeCodeGrooveShredder.utility =
 			.remove();
 		var element = theApp.browser.contentDocument.getElementById("grid");
 		var tempArray = theApp.$(element).find('.groovy-row.selected');
+		// Show a message to the user
+		theApp.utility.showNotify(tempArray.length+" ",'willDownload');
+		// Iterate over all selected songs
 		theApp.$(tempArray).each(function(){
 			// Strip out the song's details
 			var songId = theApp.$(this).find(".play").attr('rel');
@@ -624,6 +626,66 @@ orgArgeeCodeGrooveShredder.utility =
 		postData.addContentLength = true;
 		postData.setData(stringStream);
 		return postData;
+	},
+	/**
+	 * Show a notification to the user based on the given string.
+	 **/
+	showNotify: function(pre,stringName,post){
+		var theApp = orgArgeeCodeGrooveShredder;
+		// Make pre and post optional
+		if(typeof stringName === "undefined"){
+			stringName = pre;
+			pre = "";
+		}
+		if(typeof post === "undefined")
+			post = "";
+		// Create the HTML for the notification (static HTML)
+		var notification = '\
+		<li class="notification notification_success shredded" style="top: 100px">\
+			<div class="top">\
+			<div class="cap right"></div>\
+			<div class="cap left"></div>\
+			<div class="center"></div>\
+			</div>\
+			<div class="middle">\
+				<div class="cap right"></div>\
+				<div class="cap left"></div>\
+				<div class="content favorited">\
+					<p></p>\
+					<div class="actions clear">\
+					</div>\
+					<a class="close"><span data-translate-text="CLOSE">???</span></a>\
+					<div class="clear"></div>\
+				</div>\
+			</div>\
+			<div class="bottom">\
+			<div class="cap right"></div>\
+			<div class="cap left"></div>\
+			<div class="center"></div>\
+		</div>\
+		</li>\
+		';
+		// Is a notification area available?
+		if(theApp.$("ul#notifications",
+					theApp.browser.contentDocument)
+					.length == 0){
+			// No place to put notification. Fallback to alert.
+			alert(pre+theApp.localize.getString(stringName)+post);
+		} else {
+			// Attach the blank notification to the page
+			theApp.$("ul#notifications",theApp.browser.contentDocument)
+				  .prepend(notification);
+			// Insert magical text into the notification
+			theApp.$("li.shredded:first",theApp.browser.contentDocument).find('p')
+				  .text(pre+theApp.localize.getString(stringName)+post);
+			// Slide the notification up, wait, then slide out
+			theApp.$("li.shredded:first",theApp.browser.contentDocument)
+				  .animate({top: '0px'}, 300, "linear")
+				  .delay(6000)
+				  .animate({top: '100px'}, {"duration": 300, "complete":function(){
+					theApp.$(this).remove();
+				  }});
+		}
 	},
 	theApp : orgArgeeCodeGrooveShredder
 }

@@ -1,0 +1,32 @@
+<!ENTITY prefwindow.title "グルブシュレッダ設定">
+<!ENTITY pane1.title "グルブシュレッダ設定">
+<!ENTITY gensettab.label "General Settings">
+<!ENTITY filesettab.label "Download Settings">
+<!ENTITY expsettab.label "Experimental">
+<!ENTITY helptab.label "Help">
+<!ENTITY checkautoget.label "Automatic Downloads">
+<!ENTITY checkautoget.accesskey "A">
+<!ENTITY checkautonext.label "Skip To Next Song on Download">
+<!ENTITY checkautonext.accesskey "N">
+<!ENTITY checknodialog.label "Skip File Select Dialog">
+<!ENTITY checknodialog.accesskey "D">
+<!ENTITY checknodupeprompt.label "Skip Duplicate File Prompt (Don't Re-Download)">
+<!ENTITY checknodupeprompt.accesskey "U">
+<!ENTITY downloc.label "Download Location">
+<!ENTITY downloc.accesskey "L">
+<!ENTITY downloc.button "Browse...">
+<!ENTITY downdir.label "Create a Sub-Directory Using:">
+<!ENTITY downdir.accesskey "C">
+<!ENTITY subdowndir.label "Create a second Sub-Directory Using:">
+<!ENTITY subdowndir.accesskey "S">
+<!ENTITY filepref.label "Default Filename">
+<!ENTITY filepref.accesskey "F">
+<!ENTITY checkplaydir.label "Create Sub-Directory using Current Playlist">
+<!ENTITY checkplaydir.accesskey "P">
+<!ENTITY concurrnum.label "Concurrent downloads at a time:">
+<!ENTITY concurrnum.accesskey "T">
+<!ENTITY thanks.text "Thank you for using Groove Shredder.">
+<!ENTITY updated.text "You are using the latest version.">
+<!ENTITY outdated.text "You are using an outdated version.">
+<!ENTITY unreviewed.text "This version is being reviewed.">
+<!ENTITY version.number "1.14.3">

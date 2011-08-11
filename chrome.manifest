@@ -1,6 +1,7 @@
 content   grooveshredder                 chrome/content/ contentaccessible=yes
 skin      grooveshredder   classic/1.0   chrome/skin/
 locale    grooveshredder   en-US         chrome/locale/en-US/
+locale    grooveshredder   ja	         chrome/locale/ja-JP/
 resource  grooveshredder                 chrome/skin/resources/
 
 overlay   chrome://browser/content/browser.xul   chrome://grooveshredder/content/ff-overlay.xul
