@@ -498,7 +498,7 @@ orgArgeeCodeGrooveShredder.utility =
 		theApp.utility.showNotify('scanningSongs');
 		// Start recording song rows
 		theApp.recordSongs = true;
-		var element = theApp.$('.slick-viewport',theApp.browser.contentDocument)[0];
+		var element = theApp.$('.slick-viewport:last',theApp.browser.contentDocument)[0];
 		// Paste the songs we already have
 		theApp.$(element).find('.slick-row.selected')
 									 .each(function(){
