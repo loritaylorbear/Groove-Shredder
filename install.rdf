@@ -18,6 +18,13 @@
 	  </Description>
 	</em:localized>
 	
+	<em:localized>
+	  <Description>
+		<em:locale>it-IT</em:locale>
+		<em:description>Un'estensione per scaricare file mp3 da Grooveshark.</em:description>
+	  </Description>
+	</em:localized>
+	
 	<!-- Firefox -->
 	<em:targetApplication>
 	  <Description>
