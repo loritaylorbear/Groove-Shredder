@@ -10,6 +10,15 @@
 	<em:description>An extension to download mp3 files from Grooveshark.</em:description>
 	<em:optionsURL>chrome://grooveshredder/content/options.xul</em:optionsURL>
 	<em:iconURL>chrome://grooveshredder/skin/shark.png</em:iconURL>
+	
+	<em:localized>
+	  <Description>
+		<em:locale>es-ES</em:locale>
+		<em:description>Una extensión para descargar archivos mp3 desde Grooveshark.</em:description>
+	  </Description>
+	</em:localized>
+	
+	<!-- Firefox -->
 	<em:targetApplication>
 	  <Description>
 		<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id> <!-- Firefox -->

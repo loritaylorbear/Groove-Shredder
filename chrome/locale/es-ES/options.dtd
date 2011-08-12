@@ -4,11 +4,11 @@
 <!ENTITY filesettab.label "Opciones de Descarga">
 <!ENTITY expsettab.label "Experimental">
 <!ENTITY helptab.label "Ayuda">
-<!ENTITY checkautoget.label "Descargas automáticas">
+<!ENTITY checkautoget.label "Descargas automÃ¡ticas">
 <!ENTITY checkautoget.accesskey "A">
-<!ENTITY checkautonext.label "Saltarse a la siguiente canción para descargar">
+<!ENTITY checkautonext.label "Saltarse a la siguiente canciÃ³n para descargar">
 <!ENTITY checkautonext.accesskey "N">
-<!ENTITY checknodialog.label "Saltarse el diálogo para escoger archivos.">
+<!ENTITY checknodialog.label "Saltarse el diÃ¡logo para escoger archivos.">
 <!ENTITY checknodialog.accesskey "D">
 <!ENTITY checknodupeprompt.label "Saltarse el aviso de archivos duplicados (No re-descargar)">
 <!ENTITY checknodupeprompt.accesskey "U">
@@ -21,12 +21,12 @@
 <!ENTITY subdowndir.accesskey "S">
 <!ENTITY filepref.label "Nombre de archivo predeterminado">
 <!ENTITY filepref.accesskey "F">
-<!ENTITY checkplaydir.label "Crear un sub-directorio usando la lista de reproducción actual">
+<!ENTITY checkplaydir.label "Crear un sub-directorio usando la lista de reproducciÃ³n actual">
 <!ENTITY checkplaydir.accesskey "P">
-<!ENTITY concurrnum.label "Número de descargas en este momento:">
+<!ENTITY concurrnum.label "NÃºmero de descargas en este momento:">
 <!ENTITY concurrnum.accesskey "T">
 <!ENTITY thanks.text "Gracias por usar Groove Shredder.">
-<!ENTITY updated.text "Está usando la última versión.">
-<!ENTITY outdated.text "Está usando una versión no actualizada.">
-<!ENTITY unreviewed.text "Esta versión está siendo revisada.">
+<!ENTITY updated.text "EstÃ¡ usando la Ãºltima versiÃ³n.">
+<!ENTITY outdated.text "EstÃ¡ usando una versiÃ³n no actualizada.">
+<!ENTITY unreviewed.text "Esta versiÃ³n estÃ¡ siendo revisada.">
 <!ENTITY version.number "1.14.3">
