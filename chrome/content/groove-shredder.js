@@ -5,10 +5,13 @@ var orgArgeeCodeGrooveShredder = {};
 orgArgeeCodeGrooveShredder.$ = jQuery.noConflict();
 
 /* Global Variables contained in the namespace */
-// orgArgeeCodeGrooveShredder.console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+orgArgeeCodeGrooveShredder.console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 orgArgeeCodeGrooveShredder.download_manager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
 orgArgeeCodeGrooveShredder.pref_service = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 orgArgeeCodeGrooveShredder.gpreferences = orgArgeeCodeGrooveShredder.pref_service.getBranch("extensions.grooveshredder");
+
+/* Debug flag in case of emergency */
+orgArgeeCodeGrooveShredder.debug = true;
 
 /**
  * grooveshredder
@@ -553,21 +556,33 @@ orgArgeeCodeGrooveShredder.utility =
 		var theApp = orgArgeeCodeGrooveShredder;
 		// Store the POST data for re-use
 		theApp.streamKeyData = postdata;
+		// Extract this song's ID
+		var songId = postdata.match(/"songID":([0-9]+)/)[1];
 		// Add a button to grooveshark
 		var element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
 		theApp.$(element).children('b').remove();
 		theApp.$(element).append('<b id="playerDetails_grooveShredder"> \
 												Download Song</b>');
+		// Obtain the file name
+		var songFile = theApp.fileUtilities.getFileName();
+		// Attach a click handler
 		theApp.$(element).children('b').click(function(){
-			theApp.grooveDownloader.getStreamKeyAndSave(0, "", 5);
+			theApp.grooveDownloader.addDownload(songId, songFile, 5);
 		});
-		// Autodownload if preferred
-		if(theApp.gpreferences.getBoolPref(".autoget")){
+		// Autodownload if preferred (make sure it's not the same song)
+		if(theApp.gpreferences.getBoolPref(".autoget")
+			&& this.songId != songId){
+			// This is now our song
+			this.songId = songId;
 			// Download the song automagically
-			theApp.grooveDownloader.getStreamKeyAndSave(0, "", 5);
+			theApp.grooveDownloader.addDownload(songId, songFile, 5);
 			// Skip to next song if preferred
 			if(theApp.gpreferences.getBoolPref(".autonext")){
-				theApp.browser.contentDocument.getElementById("player_next").click();
+				setTimeout(function(){
+					theApp.browser.contentDocument
+								  .getElementById("player_next")
+								  .click();
+				}, 1000);
 			}
 		}
 	},
@@ -688,6 +703,13 @@ orgArgeeCodeGrooveShredder.utility =
 		}
 	},
 	theApp : orgArgeeCodeGrooveShredder
+}
+
+orgArgeeCodeGrooveShredder.debugMessage =
+function(logMessage){
+	var theApp = orgArgeeCodeGrooveShredder;
+	if(theApp.debug)
+		theApp.console.logStringMessage(logMessage);
 }
 
 window.addEventListener("load", function () { orgArgeeCodeGrooveShredder.grooveshredder.onLoad(); }, false);
