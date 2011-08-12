@@ -19,7 +19,7 @@
 	  <preference id="concurrnum" name="extensions.grooveshredder.concurrnum" type="int"/>
     </preferences>
 	<div id="abovecontainer">
-		<h1>Groove Shredder <span id="version">&version.number;</span></h1>
+		<h1>Groove Shredder <span id="version">1.14.6</span></h1>
 		<label>&thanks.text;</label>
 		<label class="green">&updated.text;</label>
 		<label class="grey">&unreviewed.text;</label>

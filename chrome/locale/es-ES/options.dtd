@@ -29,4 +29,3 @@
 <!ENTITY updated.text "Está usando la última versión.">
 <!ENTITY outdated.text "Está usando una versión no actualizada.">
 <!ENTITY unreviewed.text "Esta versión está siendo revisada.">
-<!ENTITY version.number "1.14.3">
