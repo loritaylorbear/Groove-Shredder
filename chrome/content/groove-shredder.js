@@ -681,25 +681,30 @@ orgArgeeCodeGrooveShredder.utility =
 		</li>\
 		';
 		// Is a notification area available?
-		if(theApp.$("ul#notifications",
-					theApp.browser.contentDocument)
-					.length == 0){
+		if(typeof theApp.browser !== "undefined"){
+			if(theApp.$("ul#notifications",
+				theApp.browser.contentDocument)
+				.length == 0){
+				// No place to put notification. Fallback to alert.
+				alert(pre+theApp.localize.getString(stringName)+post);
+			} else {
+				// Attach the blank notification to the page
+				theApp.$("ul#notifications",theApp.browser.contentDocument)
+					  .prepend(notification);
+				// Insert magical text into the notification
+				theApp.$("li.shredded:first",theApp.browser.contentDocument).find('p')
+					  .text(pre+theApp.localize.getString(stringName)+post);
+				// Slide the notification up, wait, then slide out
+				theApp.$("li.shredded:first",theApp.browser.contentDocument)
+					  .animate({top: '0px'}, 300, "linear")
+					  .delay(6000)
+					  .animate({top: '100px'}, {"duration": 300, "complete":function(){
+						theApp.$(this).remove();
+					  }});
+			}
+		} else {
 			// No place to put notification. Fallback to alert.
 			alert(pre+theApp.localize.getString(stringName)+post);
-		} else {
-			// Attach the blank notification to the page
-			theApp.$("ul#notifications",theApp.browser.contentDocument)
-				  .prepend(notification);
-			// Insert magical text into the notification
-			theApp.$("li.shredded:first",theApp.browser.contentDocument).find('p')
-				  .text(pre+theApp.localize.getString(stringName)+post);
-			// Slide the notification up, wait, then slide out
-			theApp.$("li.shredded:first",theApp.browser.contentDocument)
-				  .animate({top: '0px'}, 300, "linear")
-				  .delay(6000)
-				  .animate({top: '100px'}, {"duration": 300, "complete":function(){
-					theApp.$(this).remove();
-				  }});
 		}
 	},
 	theApp : orgArgeeCodeGrooveShredder
