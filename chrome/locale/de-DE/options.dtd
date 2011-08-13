@@ -1,0 +1,32 @@
+<!ENTITY prefwindow.title "Groove Shredder Einstellungen">
+<!ENTITY pane1.title "Groove Shredder Einstellungen">
+<!ENTITY gensettab.label "Haupteinstellungen">
+<!ENTITY filesettab.label "Download-Einstellungen">
+<!ENTITY expsettab.label "Experimentell">
+<!ENTITY helptab.label "Hilfe">
+<!ENTITY checkautoget.label "Automatische Downloads">
+<!ENTITY checkautoget.accesskey "A">
+<!ENTITY checkautonext.label "Zum nächsten Song beim Downloaden springen">
+<!ENTITY checkautonext.accesskey "N">
+<!ENTITY checknodialog.label "Datei-Auswählen-Dialog überspringen">
+<!ENTITY checknodialog.accesskey "D">
+<!ENTITY checknodupeprompt.label "Datei bereits Vorhanden - Dialog überspringen (Nicht wieder Downloaden)">
+<!ENTITY checknodupeprompt.accesskey "U">
+<!ENTITY downloc.label "Downloadordner:">
+<!ENTITY downloc.accesskey "L">
+<!ENTITY downloc.button "Auswählen...">
+<!ENTITY downdir.label "Unterordner erstellen mit:">
+<!ENTITY downdir.accesskey "C">
+<!ENTITY subdowndir.label "Eine andere Unterordner erstellen mit:">
+<!ENTITY subdowndir.accesskey "S">
+<!ENTITY filepref.label "Original-Dateiname">
+<!ENTITY filepref.accesskey "F">
+<!ENTITY checkplaydir.label "Unterordner mit dem Namen der aktuellen Playlist erstellen">
+<!ENTITY checkplaydir.accesskey "P">
+<!ENTITY concurrnum.label "Gleichzeitige Downloads:">
+<!ENTITY concurrnum.accesskey "T">
+<!ENTITY thanks.text "Danke für das benutzen von Groove Shredder">
+<!ENTITY updated.text "Du benutzt die aktuelle Version.">
+<!ENTITY outdated.text "Du benutzt eine veraltete Version!">
+<!ENTITY unreviewed.text "Diese Version wird im Moment geprüft.">
+<!ENTITY version.number "1.14.3">

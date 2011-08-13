@@ -25,6 +25,13 @@
 	  </Description>
 	</em:localized>
 	
+	<em:localized>
+	  <Description>
+		<em:locale>de-DE</em:locale>
+		<em:description>Eine erweiterung, um MP3s von Grooveshark zu laden.</em:description>
+	  </Description>
+	</em:localized>
+	
 	<!-- Firefox -->
 	<em:targetApplication>
 	  <Description>
