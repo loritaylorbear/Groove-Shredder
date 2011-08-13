@@ -47,7 +47,7 @@ $grooveShredderQuery(function(){
 	
 	$grooveShredderQuery.get('https://services.addons.mozilla.org/en-US/firefox/api/1.3/addon/305091', function(data){
 		var version = data.getElementsByTagName("version")[0].textContent;
-		var my_version = '1.14.6';
+		var my_version = '1.14.7';
 		if(version > my_version){
 			$grooveShredderQuery('#abovecontainer .orange').css('display', 'block');
 		} else if(version < my_version) {
