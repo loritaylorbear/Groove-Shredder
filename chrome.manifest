@@ -4,7 +4,6 @@ locale    grooveshredder   en-US         chrome/locale/en-US/
 locale    grooveshredder   es-ES         chrome/locale/es-ES/
 locale    grooveshredder   it-IT         chrome/locale/it-IT/
 locale    grooveshredder   de-DE         chrome/locale/de-DE/
-locale    grooveshredder   ja	         chrome/locale/ja-JP/
 resource  grooveshredder                 chrome/skin/resources/
 
 overlay   chrome://browser/content/browser.xul   chrome://grooveshredder/content/ff-overlay.xul
