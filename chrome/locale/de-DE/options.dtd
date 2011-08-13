@@ -6,15 +6,15 @@
 <!ENTITY helptab.label "Hilfe">
 <!ENTITY checkautoget.label "Automatische Downloads">
 <!ENTITY checkautoget.accesskey "A">
-<!ENTITY checkautonext.label "Zum nächsten Song beim Downloaden springen">
+<!ENTITY checkautonext.label "Zum nÃ¤chsten Song beim Downloaden springen">
 <!ENTITY checkautonext.accesskey "N">
-<!ENTITY checknodialog.label "Datei-Auswählen-Dialog überspringen">
+<!ENTITY checknodialog.label "Datei-AuswÃ¤hlen-Dialog Ã¼berspringen">
 <!ENTITY checknodialog.accesskey "D">
-<!ENTITY checknodupeprompt.label "Datei bereits Vorhanden - Dialog überspringen (Nicht wieder Downloaden)">
+<!ENTITY checknodupeprompt.label "Datei bereits Vorhanden - Dialog Ã¼berspringen (Nicht wieder Downloaden)">
 <!ENTITY checknodupeprompt.accesskey "U">
 <!ENTITY downloc.label "Downloadordner:">
 <!ENTITY downloc.accesskey "L">
-<!ENTITY downloc.button "Auswählen...">
+<!ENTITY downloc.button "AuswÃ¤hlen...">
 <!ENTITY downdir.label "Unterordner erstellen mit:">
 <!ENTITY downdir.accesskey "C">
 <!ENTITY subdowndir.label "Eine andere Unterordner erstellen mit:">
@@ -25,8 +25,8 @@
 <!ENTITY checkplaydir.accesskey "P">
 <!ENTITY concurrnum.label "Gleichzeitige Downloads:">
 <!ENTITY concurrnum.accesskey "T">
-<!ENTITY thanks.text "Danke für das benutzen von Groove Shredder">
+<!ENTITY thanks.text "Danke fÃ¼r das benutzen von Groove Shredder">
 <!ENTITY updated.text "Du benutzt die aktuelle Version.">
 <!ENTITY outdated.text "Du benutzt eine veraltete Version!">
-<!ENTITY unreviewed.text "Diese Version wird im Moment geprüft.">
+<!ENTITY unreviewed.text "Diese Version wird im Moment geprÃ¼ft.">
 <!ENTITY version.number "1.14.3">
