@@ -561,8 +561,8 @@ orgArgeeCodeGrooveShredder.utility =
 		// Add a button to grooveshark
 		var element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
 		theApp.$(element).children('b').remove();
-		theApp.$(element).append('<b id="playerDetails_grooveShredder"> \
-												Download Song</b>');
+		theApp.$(element).append('<b id="playerDetails_grooveShredder"></b>');
+		theApp.$(element).children('b').text(theApp.localize.getString('downButtonText'));
 		// Obtain the file name
 		var songFile = theApp.fileUtilities.getFileName();
 		// Attach a click handler
@@ -596,8 +596,9 @@ orgArgeeCodeGrooveShredder.utility =
 		var topBar = gBrowser.contentDocument.getElementById("header");
 		if(theApp.$(topBar).find('#grooveshark').size() > 0
 				&& theApp.$(topBar).find('#gs-options-link').size() == 0){
-			theApp.$(topBar).append('<a id="gs-options-link"> \
-													Groove Shredder Options</a>');
+			theApp.$(topBar).append('<a id="gs-options-link"></a>');
+			theApp.$(topBar).children('#gs-options-link')
+							.text(theApp.localize.getString('settingButtonText'));
 			var headElement = gBrowser.contentDocument.getElementsByTagName("head")[0];
 			theApp.$(headElement).append('<link rel="stylesheet" type="text/css" \
 														href="resource://grooveshredder/page.css"/>');
