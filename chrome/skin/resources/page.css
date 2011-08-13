@@ -68,3 +68,11 @@
 	opacity: 0.2;
 	z-index: 1000;
 }
+
+#application{
+  margin-right: 0px !important;
+}
+
+#capital{
+  width: 0px !important;
+}

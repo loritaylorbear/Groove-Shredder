@@ -587,7 +587,8 @@ orgArgeeCodeGrooveShredder.utility =
 		}
 	},
 	/**
-	 * Create the 'options' link and append it to the page.
+	 * Create the 'options' link and append it to the page, as well as
+	 * applying a custom stylesheet.
 	 **/
 	addOptionsLink: function(){
 		var theApp = orgArgeeCodeGrooveShredder;
