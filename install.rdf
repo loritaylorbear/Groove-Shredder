@@ -4,7 +4,7 @@
     <em:id>grooveshredder@code.argee.org</em:id>
     <em:type>2</em:type>
     <em:name>Groove Shredder</em:name>
-    <em:version>1.14.8</em:version>
+    <em:version>1.14.9</em:version>
     <em:creator>Rohit Garg</em:creator>
     <em:contributor></em:contributor>
     <em:description>An extension to download mp3 files from Grooveshark</em:description>
@@ -37,7 +37,7 @@
 	  <Description>
 		<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id> <!-- Firefox -->
 		<em:minVersion>4.0</em:minVersion>
-		<em:maxVersion>8.0a1</em:maxVersion>
+		<em:maxVersion>11.0</em:maxVersion>
 	  </Description>
 	</em:targetApplication>
   </Description>

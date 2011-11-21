@@ -3,10 +3,9 @@
   background: #888 url(chrome://grooveshredder/skin/shark-s.png) no-repeat 4px center;
   color: #fff;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-  position: absolute;
-  left: 280px;
-  padding: 5px 5px 5px 24px;
-  top: 8px;
+  padding: 2px 5px 2px 24px;
+  line-height: 20px;
+  margin: 7px 0;
   -moz-border-radius: 2px;
 }
 

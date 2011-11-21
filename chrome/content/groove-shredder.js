@@ -596,6 +596,8 @@ orgArgeeCodeGrooveShredder.utility =
 		var topBar = gBrowser.contentDocument.getElementById("header");
 		if(theApp.$(topBar).find('#grooveshark').size() > 0
 				&& theApp.$(topBar).find('#gs-options-link').size() == 0){
+			// Switch to sub-menu
+			topBar = gBrowser.contentDocument.getElementById("header_mainNavigation");
 			theApp.$(topBar).append('<a id="gs-options-link"></a>');
 			theApp.$(topBar).children('#gs-options-link')
 							.text(theApp.localize.getString('settingButtonText'));
