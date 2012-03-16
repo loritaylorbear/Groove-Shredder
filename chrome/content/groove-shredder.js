@@ -2,13 +2,13 @@
 var orgArgeeCodeGrooveShredder = {};
 
 /* Drop jQuery into the namespace like a heavy rock */
-orgArgeeCodeGrooveShredder.$ = jQuery.noConflict();
+orgArgeeCodeGrooveShredder.$ = jQuery.noConflict(true);
 
 /* Global Variables contained in the namespace */
 orgArgeeCodeGrooveShredder.console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 orgArgeeCodeGrooveShredder.download_manager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
 orgArgeeCodeGrooveShredder.pref_service = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
-orgArgeeCodeGrooveShredder.gpreferences = orgArgeeCodeGrooveShredder.pref_service.getBranch("extensions.grooveshredder");
+orgArgeeCodeGrooveShredder.gpreferences = orgArgeeCodeGrooveShredder.pref_service.getBranch("extensions.grooveshredder.");
 
 /* Debug flag in case of emergency */
 orgArgeeCodeGrooveShredder.debug = true;
@@ -196,7 +196,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 			directory.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0777);
 			automade = true;
 		}
-		if(!this.theApp.gpreferences.getBoolPref(".nodialog")){
+		if(!this.theApp.gpreferences.getBoolPref("nodialog")){
 			var nsIFilePicker = Components.interfaces.nsIFilePicker;
 			var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 			fp.init(window, this.theApp.localize.getString('saveTitle'), nsIFilePicker.modeSave);
@@ -220,7 +220,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 			this.obj_URI = this.ios.newURI(this.url, null, null);
 			this.file_URI = this.ios.newFileURI(this.thefile);
 			if(this.thefile.exists()){
-				if(this.theApp.gpreferences.getBoolPref(".nodupeprompt")) return false;
+				if(this.theApp.gpreferences.getBoolPref("nodupeprompt")) return false;
 				if(!confirm(this.song_file+'\r\n'+
 							this.theApp.localize.getString('overPrompt'))) return false;
 			}
@@ -251,7 +251,7 @@ orgArgeeCodeGrooveShredder.grooveDownloader =
 	 **/
 	runDownloads: function()
 	{
-		var maxdl = this.theApp.gpreferences.getIntPref('.concurrnum');
+		var maxdl = this.theApp.gpreferences.getIntPref('concurrnum');
 		while(this.theApp.toBeDownloaded.length > 0
 			  && this.theApp.download_manager.activeDownloadCount < maxdl){
 			var item = this.theApp.toBeDownloaded.shift();
@@ -316,7 +316,7 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 	getFileName: function()
 	{
 		var theApp = orgArgeeCodeGrooveShredder;
-		var songBox = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
+		var songBox = theApp.browser.contentDocument.getElementById("playerDetails_current_song");
 		var song_name = theApp.$(songBox).find('.currentSongLink').attr('title');
 		var song_artist = theApp.$(songBox).find('.artist').attr('title');
 		var song_album = theApp.$(songBox).find('.album').attr('title');
@@ -329,11 +329,12 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 	parseFileName: function(song_name, song_artist, song_album)
 	{
 		var theApp = orgArgeeCodeGrooveShredder;
-		var file_pref = theApp.gpreferences.getCharPref(".filename");
+		var file_pref = theApp.gpreferences.getCharPref("filename");
 		theApp.song_name = song_name;
 		theApp.song_artist = song_artist;
 		theApp.song_album = song_album;
 		var song_file = theApp.fileUtilities.replaceTags(file_pref) + ".mp3";
+		console.log(song_file);
 		return song_file;
 	},
 	/**
@@ -354,16 +355,16 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 		var theApp = orgArgeeCodeGrooveShredder;
 		var directory;
 		Components.utils.import("resource://gre/modules/FileUtils.jsm");
-		if(!theApp.gpreferences.prefHasUserValue('.downloc')){
+		if(!theApp.gpreferences.prefHasUserValue('downloc')){
 			directory = FileUtils.getDir("Desk", []);
 		} else {
 			var dir = Components.classes["@mozilla.org/file/local;1"].
 					createInstance(Components.interfaces.nsILocalFile);
-			dir.initWithPath(decodeURIComponent(escape(theApp.gpreferences.getCharPref('.downloc'))));
+			dir.initWithPath(decodeURIComponent(escape(theApp.gpreferences.getCharPref('downloc'))));
 			directory = dir;
 		}
 		
-		if(theApp.gpreferences.getBoolPref('.playdir')){
+		if(theApp.gpreferences.getBoolPref('playdir')){
 			var playDetails = theApp.browser.contentDocument.getElementById("page_header");
 			var subdir = theApp.$(playDetails).find('.name').html();
 			if(typeof(subdir) !== undefined){
@@ -378,15 +379,15 @@ orgArgeeCodeGrooveShredder.fileUtilities =
 					directory.appendRelativePath(subdir);
 				}
 			}
-		} else if(theApp.gpreferences.prefHasUserValue('.downdir')){
-			var dir_pref = theApp.gpreferences.getCharPref(".downdir");
+		} else if(theApp.gpreferences.prefHasUserValue('downdir')){
+			var dir_pref = theApp.gpreferences.getCharPref("downdir");
 			var subdir = theApp.fileUtilities.replaceTags(dir_pref);
 			directory.appendRelativePath(decodeURIComponent(escape(subdir)));
 		}
 		
 		// Deal with second sub-directory option
-		if(theApp.gpreferences.prefHasUserValue('.subdowndir')){
-			var dir_pref = theApp.gpreferences.getCharPref(".subdowndir");
+		if(theApp.gpreferences.prefHasUserValue('subdowndir')){
+			var dir_pref = theApp.gpreferences.getCharPref("subdowndir");
 			var subdir = theApp.fileUtilities.replaceTags(dir_pref);
 			directory.appendRelativePath(decodeURIComponent(escape(subdir)));
 		}	
@@ -439,10 +440,6 @@ orgArgeeCodeGrooveShredder.utility =
 				// If this item is selected or deselected, re-append
 				theApp.utility.appendSongItem(this);
 			});
-		} else if(typeof theApp.streamKeyData !== "undefined" &&
-				  theApp.$(event.target).hasClass('currentSongLink')){
-			// Deal with disappearing button bug
-			theApp.utility.addSongButton(theApp.streamKeyData);
 		}
 	},
 	/**
@@ -490,8 +487,8 @@ orgArgeeCodeGrooveShredder.utility =
 		if(typeof theApp.streamKeyData === "undefined"){
 			theApp.utility.showNotify('playFirst');
 			return false;
-		} else if(!theApp.gpreferences.getBoolPref(".nodupeprompt")
-					|| !theApp.gpreferences.getBoolPref(".nodialog")){
+		} else if(!theApp.gpreferences.getBoolPref("nodupeprompt")
+					|| !theApp.gpreferences.getBoolPref("nodialog")){
 			// Warn the user, too many dialogs spell disaster
 			if(!confirm(theApp.localize.getString('multiWarn'))) return false;
 		}
@@ -559,25 +556,27 @@ orgArgeeCodeGrooveShredder.utility =
 		// Extract this song's ID
 		var songId = postdata.match(/"songID":([0-9]+)/)[1];
 		// Add a button to grooveshark
-		var element = theApp.browser.contentDocument.getElementById("playerDetails_nowPlaying");
-		theApp.$(element).children('b').remove();
-		theApp.$(element).append('<b id="playerDetails_grooveShredder"></b>');
-		theApp.$(element).children('b').text(theApp.localize.getString('downButtonText'));
-		// Obtain the file name
-		var songFile = theApp.fileUtilities.getFileName();
+		var element = theApp.browser.contentDocument.getElementById("playerDetails");
+		theApp.$(element).children('#playerDetails_grooveShredder').remove();
+		theApp.$("#player_queue_resize", element).before('<b id="playerDetails_grooveShredder"></b>');
+		theApp.$(element).children('#playerDetails_grooveShredder')
+							.text(theApp.localize.getString('downButtonText'));
 		// Attach a click handler
 		theApp.$(element).children('b').click(function(){
+			var songFile = theApp.fileUtilities.getFileName();
 			theApp.grooveDownloader.addDownload(songId, songFile, 5);
 		});
 		// Autodownload if preferred (make sure it's not the same song)
-		if(theApp.gpreferences.getBoolPref(".autoget")
+		if(theApp.gpreferences.getBoolPref("autoget")
 			&& this.songId != songId){
+			// Get the song name
+			var songFile = theApp.fileUtilities.getFileName();
 			// This is now our song
 			this.songId = songId;
 			// Download the song automagically
 			theApp.grooveDownloader.addDownload(songId, songFile, 5);
 			// Skip to next song if preferred
-			if(theApp.gpreferences.getBoolPref(".autonext")){
+			if(theApp.gpreferences.getBoolPref("autonext")){
 				setTimeout(function(){
 					theApp.browser.contentDocument
 								  .getElementById("player_next")

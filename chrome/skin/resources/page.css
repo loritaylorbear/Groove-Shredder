@@ -14,7 +14,7 @@
   background-color: #aaa;
 }
 
-#playerDetails_nowPlaying #playerDetails_grooveShredder,
+#playerDetails #playerDetails_grooveShredder,
 .meta b#playlistName_grooveShredder 
 {
   position: relative;
@@ -27,7 +27,12 @@
   background: #888 url(chrome://grooveshredder/skin/shark-s.png) no-repeat 4px center;
 }
 
-#playerDetails_nowPlaying #playerDetails_grooveShredder:hover {
+#playerDetails #playerDetails_grooveShredder {
+	float: left;
+	margin: 7px 10px;
+}
+
+#playerDetails #playerDetails_grooveShredder:hover {
   background-color: #aaa;
 }
 
